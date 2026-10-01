@@ -28,9 +28,15 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
           className="relative w-full sm:w-64 sm:min-w-[16rem] aspect-[4/3] sm:aspect-auto bg-sunken overflow-hidden block shrink-0"
         >
           <img
-            src={assetUrl(product.coverImage.url)}
-            alt={product.coverImage.alt ?? product.title}
+            src={product.coverImage?.url ? assetUrl(product.coverImage.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"}
+            alt={product.coverImage?.alt ?? product.title}
             loading="lazy"
+            onError={(e) => {
+              const el = e.currentTarget;
+              if (!el.src.includes("photo-1523275335684-37898b6baf30")) {
+                el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80";
+              }
+            }}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
@@ -142,9 +148,15 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
       {/* Product Image Cover */}
       <Link href={`/products/${product._id}`} className="relative aspect-[4/3] bg-sunken overflow-hidden block">
         <img
-          src={assetUrl(product.coverImage.url)}
-          alt={product.coverImage.alt ?? product.title}
+          src={product.coverImage?.url ? assetUrl(product.coverImage.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"}
+          alt={product.coverImage?.alt ?? product.title}
           loading="lazy"
+          onError={(e) => {
+            const el = e.currentTarget;
+            if (!el.src.includes("photo-1523275335684-37898b6baf30")) {
+              el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80";
+            }
+          }}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-108"
         />
 

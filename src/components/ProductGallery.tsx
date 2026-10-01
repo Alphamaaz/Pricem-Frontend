@@ -68,8 +68,14 @@ export function ProductGallery({
           >
             <img
               key={selected.url}
-              src={assetUrl(selected.url)}
-              alt={selected.alt ?? title}
+              src={selected?.url ? assetUrl(selected.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=85"}
+              alt={selected?.alt ?? title}
+              onError={(e) => {
+                const el = e.currentTarget;
+                if (!el.src.includes("photo-1523275335684-37898b6baf30")) {
+                  el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=85";
+                }
+              }}
               className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105 select-none"
             />
           </div>
@@ -184,9 +190,15 @@ export function ProductGallery({
                   </>
                 ) : (
                   <img
-                    src={assetUrl(item.url)}
+                    src={item.url ? assetUrl(item.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80"}
                     alt={item.alt ?? `${title} photo ${index + 1}`}
                     loading="lazy"
+                    onError={(e) => {
+                      const el = e.currentTarget;
+                      if (!el.src.includes("photo-1523275335684-37898b6baf30")) {
+                        el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80";
+                      }
+                    }}
                     className="h-full w-full object-cover"
                   />
                 )}
