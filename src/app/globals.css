@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/*
+  Pricem design tokens — derived from the mobile Figma (PriceAm).
+  Warm cream surfaces, orange/terracotta primary, soft rounded cards.
+*/
+@theme {
+  /* Brand */
+  --color-primary: #f0762b; /* main orange — CTAs */
+  --color-primary-dark: #d95f16; /* hover/pressed */
+  --color-primary-darker: #b34a0e;
+  --color-primary-soft: #fde8d8; /* tinted chips/badges */
+  --color-primary-light: #ff9a54;
+  --color-accent: #f5b942; /* amber — secondary actions (e.g. Counter) */
+  --color-accent-dark: #d99a20;
+
+  /* Surfaces */
+  --color-cream: #fbf1e9; /* page background */
+  --color-surface: #ffffff; /* cards */
+  --color-sunken: #f6ede4; /* inputs, wells */
+  --color-ink-900: #1c150e;
+
+  /* Text */
+  --color-ink: #241b12; /* headings / primary text */
+  --color-body: #55483c; /* body text */
+  --color-muted: #8c7c68; /* placeholders, captions */
+
+  /* Semantic */
+  --color-success: #1f8a4c;
+  --color-success-soft: #e5f5eb;
+  --color-danger: #d93025;
+  --color-danger-soft: #fbe9e7;
+  --color-warning: #f5b942;
+  --color-warning-soft: #fef3dc;
+
+  /* Borders */
+  --color-line: #ecdfd2;
+  --color-line-strong: #dcc9b4;
+
+  /* Shape */
+  --radius-card: 1.25rem;
+
+  /* Shadows */
+  --shadow-soft: 0 1px 2px rgba(36, 27, 18, 0.04), 0 8px 24px -12px rgba(36, 27, 18, 0.12);
+  --shadow-lifted: 0 4px 12px rgba(36, 27, 18, 0.06), 0 16px 40px -16px rgba(36, 27, 18, 0.22);
+  --shadow-glow: 0 8px 30px -8px rgba(240, 118, 43, 0.45);
+
+  --font-sans: var(--font-geist-sans);
+}
+
+* {
+  border-color: var(--color-line);
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-body);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Consistent affordance for every interactive control across the application. */
+:where(
+  a[href],
+  button,
+  summary,
+  select,
+  label[for],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="file"],
+  [role="button"],
+  [role="link"]
+) {
+  cursor: pointer;
+}
+
+:where(
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  [role="button"][aria-disabled="true"],
+  [role="link"][aria-disabled="true"]
+) {
+  cursor: not-allowed;
+}
+
+::selection {
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary-darker);
+}
+
+/* Utility classes used across the app — plain CSS so they work without @theme plumbing */
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-lifted { box-shadow: var(--shadow-lifted); }
+.shadow-glow { box-shadow: var(--shadow-glow); }
+
+.bg-noise {
+  background-image: radial-gradient(circle at 1px 1px, rgba(36, 27, 18, 0.05) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out both;
+}
