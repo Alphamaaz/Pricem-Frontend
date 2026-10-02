@@ -12,13 +12,10 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Check,
-  Copy,
   Handshake,
   Heart,
   MessageCircle,
   Minus,
-  Phone,
   Plus,
   ShieldCheck,
   ShoppingCart,
@@ -56,8 +53,6 @@ export function BuyBox({ product }: { product: Product }) {
   const [offerPrice, setOfferPrice] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [savedToWishlist, setSavedToWishlist] = useState(false);
-  const [showPhone, setShowPhone] = useState(false);
-  const [copiedPhone, setCopiedPhone] = useState(false);
 
   const allSelected =
     !hasVariants || product.variants.every((v) => selected[v.name]);
@@ -204,11 +199,6 @@ export function BuyBox({ product }: { product: Product }) {
     setOfferPrice(String(discounted));
   }
 
-  function handleCopyPhone(phone: string) {
-    navigator.clipboard.writeText(phone);
-    setCopiedPhone(true);
-    setTimeout(() => setCopiedPhone(false), 2000);
-  }
 
   return (
     <div className="rounded-3xl border border-line bg-surface p-6 shadow-soft">
@@ -359,7 +349,7 @@ export function BuyBox({ product }: { product: Product }) {
           </Button>
         </div>
 
-        {/* Row 3: Chat, Show Contact, Wishlist */}
+        {/* Row 3: Chat with Seller & Wishlist */}
         <div className="flex items-center gap-2 pt-1">
           <Button
             variant="outline"
@@ -368,23 +358,11 @@ export function BuyBox({ product }: { product: Product }) {
             disabled={busy !== null}
             loading={busy === "chat"}
             onClick={onOpenConversation}
-            className="rounded-xl border-line text-xs font-semibold"
+            className="rounded-xl border-line text-xs font-semibold flex-1 h-11"
           >
             <MessageCircle className="h-4 w-4 text-primary" strokeWidth={2} />
             Chat With Seller
           </Button>
-
-          {/* Show Contact button (Jiji style) */}
-          {(product.contactPhone || product.sellerPhone) && (
-            <button
-              type="button"
-              onClick={() => setShowPhone((prev) => !prev)}
-              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 text-xs font-semibold text-ink hover:border-primary hover:text-primary transition-colors"
-            >
-              <Phone className="h-3.5 w-3.5 text-success" />
-              {showPhone ? "Hide Contact" : "Show Contact"}
-            </button>
-          )}
 
           <button
             type="button"
@@ -400,46 +378,14 @@ export function BuyBox({ product }: { product: Product }) {
             <Heart className={`h-4.5 w-4.5 ${savedToWishlist ? "fill-current" : ""}`} strokeWidth={2} />
           </button>
         </div>
-
-        {/* Revealed Contact Card */}
-        {showPhone && (product.contactPhone || product.sellerPhone) && (
-          <div className="mt-3 rounded-2xl border border-success/30 bg-success-soft/40 p-4 animate-fade-in-up">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-success">Verified Seller Phone</span>
-                <p className="text-base font-extrabold text-ink mt-0.5">{product.contactPhone || product.sellerPhone}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleCopyPhone(product.contactPhone || product.sellerPhone!)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-success/30 bg-surface px-2.5 py-1.5 text-xs font-semibold text-ink hover:bg-success-soft transition-colors"
-                >
-                  {copiedPhone ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5 text-muted" />}
-                  {copiedPhone ? "Copied" : "Copy"}
-                </button>
-                <a
-                  href={`tel:${product.contactPhone || product.sellerPhone}`}
-                  className="inline-flex items-center gap-1 rounded-lg bg-success px-3 py-1.5 text-xs font-bold text-white shadow-xs hover:bg-success/90 transition-colors"
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  Call
-                </a>
-              </div>
-            </div>
-            <p className="text-[11px] text-muted mt-2">
-              Mention Pricem when contacting the seller. Settle payments safely on delivery/inspection.
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Safety Notice Box */}
       <div className="mt-5 rounded-2xl border border-line bg-sunken/60 p-3.5 flex items-start gap-2.5">
         <ShieldCheck className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
         <div className="text-xs text-body leading-relaxed">
-          <strong className="text-ink font-semibold">Pricem Safety Tip: </strong>
-          Do not make advance prepayments. Negotiate via <span className="font-semibold text-primary">Price Am</span>, inspect the item in person or upon delivery, and settle payment directly.
+          <strong className="text-ink font-semibold">Pricem Deal Protection: </strong>
+          Keep all offers and communications inside Pricem. Negotiate via <span className="font-semibold text-primary">Price Am</span>, coordinate through in-app chat, and inspect upon receipt.
         </div>
       </div>
 
