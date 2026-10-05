@@ -10,6 +10,7 @@ import {
   MapPin,
   Phone,
   Send,
+  ShieldAlert,
   ShieldCheck,
   Truck,
 } from "lucide-react";
@@ -168,14 +169,23 @@ export default function ConversationPage() {
             </div>
           </div>
 
+          {/* Prominent Platform Safety Warning */}
+          <div className="mt-3 rounded-2xl bg-warning/15 border border-warning/40 p-3 text-xs text-ink leading-relaxed flex items-start gap-2.5">
+            <ShieldAlert className="h-4.5 w-4.5 text-warning shrink-0 mt-0.5" />
+            <div>
+              <strong className="font-bold text-ink">Safety Warning: </strong>
+              Never send money in advance! Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent users immediately.
+            </div>
+          </div>
+
           {/* Contextual instruction */}
-          <div className="mt-3 rounded-2xl bg-surface/90 border border-line p-3 text-xs text-body leading-relaxed flex items-start gap-2">
+          <div className="mt-2.5 rounded-2xl bg-surface/90 border border-line p-3 text-xs text-body leading-relaxed flex items-start gap-2">
             {isOrderWorkspace ? (
               <>
                 <Truck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-ink font-semibold">Logistics & Direct Payment Workspace: </strong>
-                  Use this chat to exchange delivery address, coordinate courier pickup, and share bank/cash settlement details safely.
+                  Use this chat to exchange delivery address, coordinate courier pickup, and arrange cash or bank transfer upon inspection.
                 </div>
               </>
             ) : (

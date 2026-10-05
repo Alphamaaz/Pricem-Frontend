@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Minus,
   Plus,
+  ShieldAlert,
   ShieldCheck,
   ShoppingCart,
   Sparkles,
@@ -380,12 +381,12 @@ export function BuyBox({ product }: { product: Product }) {
         </div>
       </div>
 
-      {/* Safety Notice Box */}
-      <div className="mt-5 rounded-2xl border border-line bg-sunken/60 p-3.5 flex items-start gap-2.5">
-        <ShieldCheck className="h-4.5 w-4.5 text-primary shrink-0 mt-0.5" />
-        <div className="text-xs text-body leading-relaxed">
-          <strong className="text-ink font-semibold">Pricem Deal Protection: </strong>
-          Keep all offers and communications inside Pricem. Negotiate via <span className="font-semibold text-primary">Price Am</span>, coordinate through in-app chat, and inspect upon receipt.
+      {/* Platform Safety Warning Banner */}
+      <div className="mt-5 rounded-2xl border border-warning/40 bg-warning/10 p-3.5 flex items-start gap-2.5">
+        <ShieldAlert className="h-4.5 w-4.5 text-warning shrink-0 mt-0.5" />
+        <div className="text-xs text-ink leading-relaxed">
+          <strong className="font-bold text-ink">Safety Warning: </strong>
+          Never pay in advance. Pricem is not involved in financial transactions. Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent sellers immediately.
         </div>
       </div>
 

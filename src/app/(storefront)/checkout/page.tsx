@@ -18,6 +18,7 @@ import {
   Handshake,
   MapPin,
   Phone,
+  ShieldAlert,
   ShieldCheck,
   Store,
   Truck,
@@ -144,11 +145,9 @@ function CheckoutContent() {
 
       notifyCommerceChanged();
 
-      const paymentResponse = await initializePayment(orderIds);
-      if (!paymentResponse.payment.authorizationUrl) {
-        throw new Error("The payment service did not return a confirmation URL");
-      }
-      window.location.assign(paymentResponse.payment.authorizationUrl);
+      // Platform is not involved in financial payments (per client instructions).
+      // Redirect directly to the order workspace to coordinate delivery and arrange direct settlement upon inspection.
+      router.replace(`/orders/${orderIds[0]}`);
     } catch (err) {
       setError(
         err instanceof ApiRequestError ? err.message : "Checkout failed. Please try again.",
@@ -217,8 +216,17 @@ function CheckoutContent() {
           </div>
           <div className="inline-flex items-center gap-2 rounded-2xl bg-surface border border-line px-3.5 py-1.5 text-xs shadow-soft">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-ink">Escrow Protected</span>
+            <span className="font-semibold text-ink">Direct Deal Arrangement</span>
           </div>
+        </div>
+      </div>
+
+      {/* Prominent Platform Safety Warning */}
+      <div className="rounded-3xl border border-warning/40 bg-warning/10 p-4 sm:p-5 flex items-start gap-3 shadow-xs">
+        <ShieldAlert className="h-5 w-5 text-warning shrink-0 mt-0.5" />
+        <div className="text-xs sm:text-sm text-ink leading-relaxed">
+          <strong className="font-bold text-ink">Important Safety Warning: </strong>
+          Pricem is not involved in any financial transactions. Never send money in advance! Agree on payment arrangements (such as Pay on Delivery or bank transfer upon personal inspection) directly with the seller. Report any fraudulent sellers immediately to have their account banned.
         </div>
       </div>
 
@@ -454,14 +462,14 @@ function CheckoutContent() {
                 "Processing Order & Dispatch…"
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  Confirm Order & Settle ₦{totals.subtotal.toLocaleString()}
+                  Confirm Order & Coordinate Delivery (₦{totals.subtotal.toLocaleString()})
                   <ArrowRight className="h-4 w-4" />
                 </span>
               )}
             </Button>
 
             <p className="text-xs text-muted text-center leading-relaxed">
-              🔒 Direct Settlement & Escrow Protection: Funds are reserved safely. Settle directly with the dispatch rider or seller upon receiving your items in good order.
+              🔒 Direct Settlement: Arrange payment directly with the seller upon receiving and inspecting your items. Never pay in advance.
             </p>
           </div>
         </form>
