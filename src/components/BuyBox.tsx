@@ -317,7 +317,7 @@ export function BuyBox({ product }: { product: Product }) {
             </div>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white tracking-wide">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Bargain
+              Price Am
             </span>
           </div>
         </button>
@@ -386,7 +386,7 @@ export function BuyBox({ product }: { product: Product }) {
         <ShieldAlert className="h-4.5 w-4.5 text-warning shrink-0 mt-0.5" />
         <div className="text-xs text-ink leading-relaxed">
           <strong className="font-bold text-ink">Safety Warning: </strong>
-          Never pay in advance. Pricem is not involved in financial transactions. Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent sellers immediately.
+          Never pay in advance. PriceAm is not involved in financial transactions. Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent sellers immediately.
         </div>
       </div>
 
@@ -414,7 +414,7 @@ export function BuyBox({ product }: { product: Product }) {
                 <Handshake className="h-5 w-5" strokeWidth={2} />
               </span>
               <div>
-                <h2 className="text-xl font-extrabold text-ink">Price Am (Bargain)</h2>
+                <h2 className="text-xl font-extrabold text-ink">Price Am (Make an Offer)</h2>
                 <p className="text-xs text-muted">Make a numeric offer to the seller</p>
               </div>
             </div>

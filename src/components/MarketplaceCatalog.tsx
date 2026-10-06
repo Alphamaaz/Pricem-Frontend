@@ -467,7 +467,7 @@ export function MarketplaceCatalog({
             <label className="flex items-center justify-between cursor-pointer group">
               <span className="text-xs font-semibold text-ink group-hover:text-primary transition-colors flex items-center gap-1.5">
                 <Handshake className="h-3.5 w-3.5 text-primary" />
-                Price Am Bargains Only
+                Price Am Only
               </span>
               <input
                 type="checkbox"
@@ -723,7 +723,7 @@ export function MarketplaceCatalog({
               {/* Toggles */}
               <div className="space-y-2 pt-2 border-t border-line">
                 <label className="flex items-center justify-between text-xs font-semibold text-ink">
-                  <span>Price Am Bargains Only</span>
+                  <span>Price Am Only</span>
                   <input
                     type="checkbox"
                     checked={negotiableOnly}

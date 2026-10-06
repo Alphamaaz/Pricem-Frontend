@@ -8,7 +8,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `${slug[0].toUpperCase()}${slug.slice(1)} Deals · Pricem` };
+  return { title: `${slug[0].toUpperCase()}${slug.slice(1)} Deals · PriceAm` };
 }
 
 export default async function CategoryPage({
@@ -33,7 +33,7 @@ export default async function CategoryPage({
           {formattedName}
         </h1>
         <p className="text-xs sm:text-sm text-muted mt-1">
-          Explore bargain deals on {formattedName.toLowerCase()} across Nigeria. Filter by state, price, or condition.
+          Explore Price Am deals on {formattedName.toLowerCase()} across Nigeria. Filter by state, price, or condition.
         </p>
       </div>
 

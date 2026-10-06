@@ -224,7 +224,7 @@ function OffersContent() {
               <Sparkles className="h-4 w-4" />
             </span>
             <span className="text-xs font-bold uppercase tracking-wider text-primary">
-              Price Am Bargain Hub
+              Price Am Hub
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-0.5">
@@ -278,13 +278,13 @@ function OffersContent() {
           <h3 className="text-base font-bold text-ink">No negotiations active</h3>
           <p className="text-xs sm:text-sm text-muted mt-1 max-w-sm mx-auto">
             {tab === "buyer"
-              ? "You haven't made any offers yet. Click 'Price Am' on any negotiable item to start bargaining!"
-              : "No incoming bargain proposals received yet for your store products."}
+              ? "You haven't made any offers yet. Click 'Price Am' on any negotiable item to make an offer!"
+              : "No incoming Price Am proposals received yet for your store products."}
           </p>
           <div className="mt-5">
             <Link href="/">
               <Button size="md" className="rounded-xl px-6">
-                Discover Bargain Items
+                Discover Price Am Items
               </Button>
             </Link>
           </div>
@@ -379,7 +379,7 @@ function OffersContent() {
 
                       <div>
                         <span className="text-[10px] uppercase font-bold text-primary block">
-                          Current Bargain
+                          Current Price Am Offer
                         </span>
                         <span className="text-xl sm:text-2xl font-black text-ink">
                           ₦{o.currentPrice.toLocaleString()}
@@ -613,7 +613,7 @@ function OffersContent() {
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-success-soft text-success mb-3 shadow-soft">
               <CheckCircle2 className="h-9 w-9" />
             </div>
-            <h2 className="text-2xl font-black text-ink">Bargain Agreed! 🎉</h2>
+            <h2 className="text-2xl font-black text-ink">Price Am Deal Agreed! 🎉</h2>
             <p className="mt-2 text-sm text-body leading-relaxed">
               Mutually accepted price for <strong>{acceptedNotice.offer.productTitle}</strong>:
             </p>

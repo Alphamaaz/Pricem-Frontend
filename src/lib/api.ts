@@ -1,5 +1,5 @@
 /*
-  Typed fetch wrapper for the Pricem REST API.
+  Typed fetch wrapper for the PriceAm REST API.
   - Attaches the access token from localStorage (client side).
   - On 401, tries one refresh (httpOnly cookie) and retries the request.
   - Throws ApiRequestError with the backend's message + field errors.

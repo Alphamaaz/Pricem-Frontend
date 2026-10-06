@@ -52,7 +52,7 @@ function SellerProductsList() {
   }, [router]);
 
   async function onRemove(id: string, title: string) {
-    if (!window.confirm(`Are you sure you want to remove "${title}"? Buyers will no longer be able to discover or bargain for this listing.`)) {
+    if (!window.confirm(`Are you sure you want to remove "${title}"? Buyers will no longer be able to discover or Price Am this listing.`)) {
       return;
     }
     setBusyId(id);
@@ -125,7 +125,7 @@ function SellerProductsList() {
             Store Listings
           </h1>
           <p className="text-xs sm:text-sm text-muted mt-1">
-            Manage product prices, Price Am bargaining limits, and inventory.
+            Manage product prices, Price Am limits, and inventory.
           </p>
         </div>
 
@@ -222,7 +222,7 @@ function SellerProductsList() {
           <p className="text-xs sm:text-sm text-muted max-w-sm mx-auto">
             {searchQuery
               ? "Try adjusting your search query or status filter."
-              : "Start adding products to enable Price Am bargaining and reach buyers nationwide."}
+              : "Start adding products to enable Price Am and reach buyers nationwide."}
           </p>
           <div className="pt-2">
             <Link href="/seller/products/new">

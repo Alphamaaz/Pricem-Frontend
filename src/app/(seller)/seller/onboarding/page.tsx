@@ -136,13 +136,13 @@ export default function SellerOnboardingPage() {
               Congratulations! Your Store is Ready 🎉
             </h1>
             <p className="text-xs sm:text-sm text-body leading-relaxed max-w-md mx-auto">
-              <strong className="text-ink">{createdProfile.storeName}</strong> is now live on Pricem. You can post listings immediately, receive customer bargaining offers, and sell across Nigeria.
+              <strong className="text-ink">{createdProfile.storeName}</strong> is now live on PriceAm. You can post listings immediately, receive customer Price Am offers, and sell across Nigeria.
             </p>
           </div>
 
           <div className="rounded-2xl bg-sunken/60 border border-line p-4 text-xs text-muted flex items-center justify-between">
             <span className="font-mono text-ink text-left truncate mr-2">
-              pricem.ng/store/{createdProfile.storeSlug}
+              priceam.ng/store/{createdProfile.storeSlug}
             </span>
             <span className="shrink-0 px-2 py-0.5 rounded-md bg-primary-soft text-primary font-bold text-[11px]">
               Live
@@ -179,7 +179,7 @@ export default function SellerOnboardingPage() {
           <div>
             <h1 className="text-2xl font-black text-ink">You are already a Merchant 🎉</h1>
             <p className="text-xs sm:text-sm text-muted mt-1 leading-relaxed">
-              Your store <strong className="text-ink">{user.sellerProfile?.storeName}</strong> is active. You can manage your listings, analyze real-time performance, and accept buyer bargains anytime.
+              Your store <strong className="text-ink">{user.sellerProfile?.storeName}</strong> is active. You can manage your listings, analyze real-time performance, and accept buyer Price Am offers anytime.
             </p>
           </div>
           
@@ -225,7 +225,7 @@ export default function SellerOnboardingPage() {
               Launch your store & start selling right away.
             </h2>
             <p className="text-xs sm:text-sm text-body mt-2 leading-relaxed">
-              No waiting for manual approvals. Post your items instantly (just like Jiji), receive automated Price Am bargain offers, and get paid with zero upfront fees.
+              No waiting for manual approvals. Post your items instantly (just like Jiji), receive automated Price Am offers, and get paid with zero upfront fees.
             </p>
           </div>
 
@@ -246,7 +246,7 @@ export default function SellerOnboardingPage() {
               </span>
               <div>
                 <h4 className="text-xs font-bold text-ink">Automated Price Am Negotiation</h4>
-                <p className="text-[11px] text-muted">Set reserve prices. The platform auto-counters buyer bargains on your terms.</p>
+                <p className="text-[11px] text-muted">Set reserve prices. The platform auto-counters buyer offers on your terms.</p>
               </div>
             </div>
 
@@ -320,7 +320,7 @@ export default function SellerOnboardingPage() {
                 </Label>
                 <div className="mt-1 flex items-center rounded-2xl border border-line bg-surface px-3 focus-within:ring-4 focus-within:ring-primary/15 focus-within:border-primary transition-shadow">
                   <span className="text-xs text-muted font-mono select-none">
-                    pricem.ng/store/
+                    priceam.ng/store/
                   </span>
                   <input
                     id="storeSlug"
@@ -457,7 +457,7 @@ export default function SellerOnboardingPage() {
                   )}
                 </Button>
                 <p className="text-[11px] text-center text-muted mt-2">
-                  By clicking launch, you agree to Pricem Merchant Terms & Safe Escrow Trading Policy.
+                  By clicking launch, you agree to PriceAm Merchant Terms & Safe Escrow Trading Policy.
                 </p>
               </div>
             </form>

@@ -452,7 +452,7 @@ export default function OrderDetailPage({
                 <span className="text-right font-medium">
                   {order.deliveryPolicy?.mode === "seller_included"
                     ? "Included in price"
-                    : "Settled externally outside Pricem"}
+                    : "Settled externally outside PriceAm"}
                 </span>
               </div>
               <div className="flex justify-between items-baseline pt-3 border-t border-line text-ink">
@@ -781,7 +781,7 @@ export default function OrderDetailPage({
               Direct Settlement Notice
             </div>
             <p className="leading-relaxed">
-              Pricem facilitates price negotiation and communication. Settle payments directly upon courier arrival or inspection. Keep all delivery references in the Transaction Chat.
+              PriceAm facilitates price negotiation and communication. Settle payments directly upon courier arrival or inspection. Keep all delivery references in the Transaction Chat.
             </p>
           </section>
 
@@ -794,7 +794,7 @@ export default function OrderDetailPage({
                   Active Dispute Case #{String(order.activeDispute).slice(-6).toUpperCase()}
                 </div>
                 <p className="text-xs text-muted leading-relaxed">
-                  A mediation case is currently open for this order. Both parties and Pricem support can review evidence and communicate in the Case Room.
+                  A mediation case is currently open for this order. Both parties and PriceAm support can review evidence and communicate in the Case Room.
                 </p>
                 <Link href={`/disputes/${order.activeDispute}`}>
                   <Button full size="sm" className="rounded-xl font-bold bg-danger text-white">
@@ -813,7 +813,7 @@ export default function OrderDetailPage({
                 </summary>
                 <form onSubmit={submitDispute} className="mt-4 space-y-3 pt-3 border-t border-line">
                   <div className="rounded-xl bg-danger-soft/50 border border-danger/20 p-3 text-[11px] text-body leading-relaxed">
-                    <strong className="text-danger font-bold">Pricem Protection:</strong> We mediate directly between buyers and sellers. Sellers in violation face immediate store bans and blacklisting.
+                    <strong className="text-danger font-bold">PriceAm Protection:</strong> We mediate directly between buyers and sellers. Sellers in violation face immediate store bans and blacklisting.
                   </div>
                   <div>
                     <Label htmlFor="disputeReason">Select Primary Issue</Label>

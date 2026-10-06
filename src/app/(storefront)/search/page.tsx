@@ -8,7 +8,7 @@ export async function generateMetadata({
   searchParams: Promise<{ q?: string }>;
 }): Promise<Metadata> {
   const { q } = await searchParams;
-  return { title: q ? `"${q}" — Search Results · Pricem` : "Browse Marketplace · Pricem" };
+  return { title: q ? `"${q}" — Search Results · PriceAm` : "Browse Marketplace · PriceAm" };
 }
 
 export default async function SearchPage({
@@ -31,7 +31,7 @@ export default async function SearchPage({
           {q ? `Search results for “${q}”` : "All Marketplace Listings"}
         </h1>
         <p className="text-xs sm:text-sm text-muted mt-1">
-          Filter by Nigerian state, category, bargain eligibility, or price range.
+          Filter by Nigerian state, category, Price Am eligibility, or price range.
         </p>
       </div>
 

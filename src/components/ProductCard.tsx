@@ -243,7 +243,7 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
               title="Negotiate with Price Am"
             >
               <Sparkles className="h-3 w-3" />
-              <span>Bargain</span>
+              <span>Price Am</span>
             </Link>
           ) : (
             <Link

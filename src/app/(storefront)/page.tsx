@@ -21,7 +21,7 @@ const HOW_IT_WORKS = [
   {
     icon: Handshake,
     title: "2. Name your price with Price Am",
-    body: "Send a numeric bargain offer. The seller can accept or counter with zero spam chat.",
+    body: "Send a numeric Price Am offer. The seller can accept or counter with zero spam chat.",
   },
   {
     icon: Truck,

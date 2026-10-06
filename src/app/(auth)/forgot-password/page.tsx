@@ -38,7 +38,7 @@ export default function ForgotPasswordPage() {
         <span className="text-xs font-bold uppercase tracking-wider text-primary">Password Recovery</span>
         <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-0.5">Reset your password</h1>
         <p className="text-xs sm:text-sm text-muted mt-1 leading-relaxed">
-          Enter the email associated with your Pricem account. We&apos;ll send you a 6-digit verification code to reset your password.
+          Enter the email associated with your PriceAm account. We&apos;ll send you a 6-digit verification code to reset your password.
         </p>
       </div>
 

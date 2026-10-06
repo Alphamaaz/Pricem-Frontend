@@ -456,7 +456,7 @@ function OrdersList() {
                     <div className="mt-4 rounded-xl bg-gradient-to-r from-success-soft/80 to-primary-soft/40 border border-success/30 px-3.5 py-2 flex items-center justify-between text-xs">
                       <span className="font-bold text-success flex items-center gap-1.5">
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        Price Am Bargain Savings
+                        Price Am Savings
                       </span>
                       <span className="text-body font-medium">
                         Original: <span className="line-through">₦{originalSum.toLocaleString()}</span> · You saved <strong className="text-success font-extrabold">₦{savings.toLocaleString()}</strong>

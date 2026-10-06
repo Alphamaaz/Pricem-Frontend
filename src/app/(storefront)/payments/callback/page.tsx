@@ -49,7 +49,7 @@ export default function PaymentCallbackPage() {
         <>
           <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
           <h1 className="mt-5 text-xl font-bold text-ink">Confirming your payment</h1>
-          <p className="mt-2 text-sm text-muted">Please wait while Pricem confirms the transaction and prepares the order for fulfilment.</p>
+          <p className="mt-2 text-sm text-muted">Please wait while PriceAm confirms the transaction and prepares the order for fulfilment.</p>
         </>
       )}
     </div>

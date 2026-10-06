@@ -80,7 +80,7 @@ function SellerDashboardContent() {
 
   const storeSlug = user?.sellerProfile?.storeSlug || "store";
   const storeName = user?.sellerProfile?.storeName || "My Store";
-  const storeUrl = `pricem.ng/store/${storeSlug}`;
+  const storeUrl = `priceam.ng/store/${storeSlug}`;
 
   function copyStoreLink() {
     navigator.clipboard.writeText(`https://${storeUrl}`);
@@ -153,7 +153,7 @@ function SellerDashboardContent() {
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 text-ink border border-accent/30 px-3 py-0.5 text-xs font-extrabold">
                   <Sparkles className="h-3 w-3 text-primary" />
-                  TikTok-Style Bargaining
+                  Price Am Offers Enabled
                 </span>
               </div>
 
@@ -332,7 +332,7 @@ function SellerDashboardContent() {
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
               <Handshake className="h-3.5 w-3.5 text-primary" />
-              Price Am Bargains
+              Price Am Offers
             </span>
             <span className="rounded-full bg-success-soft text-success text-[10px] font-bold px-2 py-0.5">
               {barg?.bargainWinRate || 0}% Win Rate
@@ -343,7 +343,7 @@ function SellerDashboardContent() {
             <span className="text-xs font-normal text-muted">/ {barg?.totalOffers || 0} deals</span>
           </div>
           <div className="flex items-center justify-between text-[11px] text-muted pt-1 border-t border-line/60">
-            <span>Bargain Discount:</span>
+            <span>Price Am Discount:</span>
             <span className="font-bold text-success">
               -₦{(barg?.totalBargainSavings || 0).toLocaleString()}
             </span>
@@ -654,7 +654,7 @@ function SellerDashboardContent() {
               </h2>
             </div>
             <p className="text-xs text-muted mt-0.5">
-              Live incoming customer purchases, courier dispatches, and agreed bargain deals.
+              Live incoming customer purchases, courier dispatches, and agreed Price Am deals.
             </p>
           </div>
 

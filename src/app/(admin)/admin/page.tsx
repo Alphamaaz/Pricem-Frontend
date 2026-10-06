@@ -330,7 +330,7 @@ export default function AdminDashboardPage() {
       u.createdAt || "",
     ]);
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    downloadBlob(csvContent, `pricem_users_${new Date().toISOString().slice(0, 10)}.csv`, "text/csv");
+    downloadBlob(csvContent, `priceam_users_${new Date().toISOString().slice(0, 10)}.csv`, "text/csv");
   }
 
   function exportOrdersCsv() {
@@ -339,7 +339,7 @@ export default function AdminDashboardPage() {
     const headers = ["Order ID", "Total (NGN)", "Status", "Source", "Date"];
     const rows = list.map((o) => [o._id, o.total, o.orderStatus, o.source || "offer", o.createdAt]);
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    downloadBlob(csvContent, `pricem_orders_${new Date().toISOString().slice(0, 10)}.csv`, "text/csv");
+    downloadBlob(csvContent, `priceam_orders_${new Date().toISOString().slice(0, 10)}.csv`, "text/csv");
   }
 
   function downloadBlob(content: string, filename: string, type: string) {
@@ -435,7 +435,7 @@ export default function AdminDashboardPage() {
               Super Admin Executive Center
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-muted">
-              Live telemetry, peer-to-peer bargain volume, dispute arbitration, merchant vetting, and customer inquiries.
+              Live telemetry, peer-to-peer Price Am offer volume, dispute arbitration, merchant vetting, and customer inquiries.
             </p>
           </div>
 
@@ -734,7 +734,7 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center justify-between pb-3 border-b border-line">
                   <h3 className="text-base font-bold text-ink flex items-center gap-2">
                     <Handshake className="h-5 w-5 text-primary" />
-                    &quot;Price Am&quot; Bargain Engine Funnel
+                    &quot;Price Am&quot; Offer Engine Funnel
                   </h3>
                   <span className="rounded-md bg-primary/10 text-primary text-[10px] font-black px-2 py-0.5">
                     Peer-to-Peer
@@ -888,7 +888,7 @@ export default function AdminDashboardPage() {
                       <Store className="h-5 w-5 text-amber-500" />
                       Pending Merchant Applications ({queues?.pendingApplications.length || 0})
                     </h3>
-                    <p className="text-xs text-muted">Review sellers requesting verification to publish on Pricem.</p>
+                    <p className="text-xs text-muted">Review sellers requesting verification to publish on PriceAm.</p>
                   </div>
                   <Link href="/admin/sellers" className="text-xs font-bold text-primary hover:underline flex items-center gap-1">
                     View Registry &rarr;
@@ -1425,7 +1425,7 @@ export default function AdminDashboardPage() {
               <div className="flex items-center justify-between pb-3 border-b border-line">
                 <h3 className="text-base font-bold text-ink flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  Live &quot;Price Am&quot; Bargain Stream
+                  Live &quot;Price Am&quot; Offer Stream
                 </h3>
                 <span className="text-xs text-muted">Negotiation flow</span>
               </div>
@@ -1526,7 +1526,7 @@ export default function AdminDashboardPage() {
                 <div className="rounded-2xl bg-sunken/60 p-4 border border-line space-y-1">
                   <span className="text-[10px] font-bold uppercase text-muted">Settlement Engine</span>
                   <div className="font-extrabold text-ink text-sm">Direct Nigerian Settlement</div>
-                  <p className="text-[11px] text-muted">Jiji.ng peer-to-peer bargain &amp; logistics flow</p>
+                  <p className="text-[11px] text-muted">Jiji.ng peer-to-peer Price Am &amp; logistics flow</p>
                 </div>
                 <div className="rounded-2xl bg-sunken/60 p-4 border border-line space-y-1">
                   <span className="text-[10px] font-bold uppercase text-muted">Standard Platform Commission</span>

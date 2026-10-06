@@ -700,7 +700,7 @@ export default function NewProductPage() {
                   <DollarSign className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-ink">Pricing &amp; &quot;Price Am&quot; Bargaining</h2>
+                  <h2 className="text-base font-bold text-ink">Pricing &amp; &quot;Price Am&quot; Offers</h2>
                   <p className="text-xs text-muted">Set your asking price and enable on-platform negotiation.</p>
                 </div>
               </div>
@@ -782,7 +782,7 @@ export default function NewProductPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 font-bold text-ink text-sm">
                       <Sparkles className="h-4 w-4 text-primary" />
-                      <span>&quot;Price Am&quot; Bargaining Enabled</span>
+                      <span>&quot;Price Am&quot; Offers Enabled</span>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -959,7 +959,7 @@ export default function NewProductPage() {
           {/* Submit Action */}
           <div className="pt-2">
             <Button type="submit" full size="lg" loading={submitting} className="rounded-2xl py-4 font-black text-base shadow-soft">
-              {submitting ? "Publishing Listing..." : "Post Listing on Pricem →"}
+              {submitting ? "Publishing Listing..." : "Post Listing on PriceAm →"}
             </Button>
             <p className="mt-2 text-center text-xs text-muted">
               By posting, you confirm this item is genuine, complies with Nigerian regulations, and is available for inspection.
@@ -976,7 +976,7 @@ export default function NewProductPage() {
                 Live Buyer Preview
               </span>
               <span className="rounded-full bg-success/10 text-success text-[10px] font-bold px-2 py-0.5 border border-success/20">
-                Pricem Card
+                PriceAm Card
               </span>
             </div>
 

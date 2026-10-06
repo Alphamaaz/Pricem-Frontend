@@ -43,7 +43,7 @@ function getDisputeStatusBadge(status: Dispute["status"]) {
       };
     case "under_review":
       return {
-        label: "Pricem Mediation in Progress",
+        label: "PriceAm Mediation in Progress",
         className: "bg-primary-soft text-primary border-primary/20",
         icon: Scale,
       };
@@ -76,7 +76,7 @@ function getOutcomeVisuals(outcome?: DisputeOutcome) {
     case "seller_penalized_strike":
       return {
         title: "Official Merchant Strike Issued",
-        subtitle: "Pricem penalized the merchant for misconduct or failure to honor terms.",
+        subtitle: "PriceAm penalized the merchant for misconduct or failure to honor terms.",
         icon: AlertTriangle,
         border: "border-amber-500/40",
         bg: "bg-amber-500/10",
@@ -227,7 +227,7 @@ export default function DisputePage({
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-danger flex items-center gap-1.5">
               <ShieldAlert className="h-4 w-4" />
-              Pricem Mediation & Protection Desk
+              PriceAm Mediation & Protection Desk
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-1">
               Case: {dispute.reason}
@@ -261,7 +261,7 @@ export default function DisputePage({
       <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-soft space-y-3">
         <h2 className="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-2">
           <Scale className="h-4 w-4" />
-          How Pricem Marketplace Mediation Protects You
+          How PriceAm Marketplace Mediation Protects You
         </h2>
         <div className="grid sm:grid-cols-3 gap-3 pt-1">
           <div className="rounded-2xl bg-sunken/60 border border-line p-3.5 text-xs space-y-1">
@@ -316,7 +316,7 @@ export default function DisputePage({
             <div className="flex items-center justify-between">
               <h3 className="font-black text-ink text-sm flex items-center gap-1.5">
                 <ShieldAlert className="h-4 w-4 text-danger" />
-                Official Pricem Incident Record
+                Official PriceAm Incident Record
               </h3>
               <span className="text-[10px] font-mono text-muted">Ref: {dispute._id}</span>
             </div>
@@ -454,7 +454,7 @@ export default function DisputePage({
                         <Store className="h-3 w-3" />
                       )}
                       {isAdminMsg
-                        ? "Pricem Compliance Desk"
+                        ? "PriceAm Compliance Desk"
                         : isBuyerMsg
                           ? "Buyer Statement"
                           : "Merchant Statement"}

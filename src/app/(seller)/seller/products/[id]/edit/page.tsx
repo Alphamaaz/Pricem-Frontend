@@ -460,7 +460,7 @@ export default function EditProductPage({
           <h2 className="text-sm font-semibold text-ink">
             Shipping &amp; Delivery
           </h2>
-          <p className="text-sm text-muted">Pricem collects payment for the item only. Delivery money is never added at checkout.</p>
+          <p className="text-sm text-muted">PriceAm facilitates direct buyer-seller agreements. Settle delivery and payment arrangements directly upon inspection.</p>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="deliveryMode">Delivery responsibility</Label>

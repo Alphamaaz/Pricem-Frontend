@@ -19,7 +19,7 @@ export default function AuthLayout({
             <div className="mt-8 space-y-3">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-soft/80 border border-primary/20 px-3.5 py-1 text-xs font-bold text-primary">
                 <Sparkles className="h-3.5 w-3.5" />
-                Nigeria&apos;s Bargain Marketplace
+                Nigeria&apos;s Price Am Marketplace
               </span>
               <h2 className="text-3xl font-black text-ink tracking-tight leading-tight">
                 Shop smart. <br />
@@ -38,7 +38,7 @@ export default function AuthLayout({
                 <Handshake className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-ink">Real-Time Price Am Bargaining</h4>
+                <h4 className="text-xs font-bold text-ink">Real-Time Price Am Offers</h4>
                 <p className="text-[11px] text-muted">Counter and agree on fair prices directly before checkout.</p>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function AuthLayout({
                 <CheckCircle2 className="h-3 w-3 text-success" />
                 Trusted across 36 Nigerian States
               </span>
-              <span className="text-muted">Over ₦50M+ saved in bargain deals</span>
+              <span className="text-muted">Over ₦50M+ saved in Price Am deals</span>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function AuthLayout({
 
           {/* Footer note */}
           <p className="mt-6 text-center text-xs text-muted">
-            Protected by Pricem Safety & Escrow Protection.
+            Protected by PriceAm Safety & Deal Protection.
           </p>
         </div>
       </div>

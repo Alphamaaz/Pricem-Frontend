@@ -51,7 +51,7 @@ function LoginForm() {
         <span className="text-xs font-bold uppercase tracking-wider text-primary">Account Access</span>
         <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-0.5">Welcome back</h1>
         <p className="text-xs sm:text-sm text-muted mt-1">
-          Log in to manage your bargain offers, track deliveries, or access your store.
+          Log in to manage your Price Am offers, track deliveries, or access your store.
         </p>
       </div>
 
@@ -132,7 +132,7 @@ function LoginForm() {
 
       <div className="mt-8 pt-6 border-t border-line text-center">
         <p className="text-xs sm:text-sm text-muted">
-          New to Pricem?{" "}
+          New to PriceAm?{" "}
           <Link href="/register" className="font-extrabold text-primary hover:underline">
             Create an account for free →
           </Link>

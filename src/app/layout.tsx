@@ -9,11 +9,11 @@ const geistSans = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "Pricem — Negotiate the price, not the experience",
-    template: "%s · Pricem",
+    default: "PriceAm — Negotiate the price, not the experience",
+    template: "%s · PriceAm",
   },
   description:
-    "Pricem is a marketplace where every buyer can negotiate and every account can sell. Make an offer, agree on a price, get it delivered.",
+    "PriceAm is a marketplace where every buyer can negotiate and every account can sell. Make an offer, agree on a price, get it delivered.",
 };
 
 export default function RootLayout({

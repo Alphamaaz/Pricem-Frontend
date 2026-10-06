@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
-  Pricem design tokens — derived from the mobile Figma (PriceAm).
+  PriceAm design tokens — derived from the mobile Figma (PriceAm).
   Warm cream surfaces, orange/terracotta primary, soft rounded cards.
 */
 @theme {

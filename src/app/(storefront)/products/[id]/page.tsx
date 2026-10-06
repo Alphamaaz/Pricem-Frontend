@@ -30,9 +30,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const product = await getProductServer(id);
-  if (!product) return { title: "Listing Not Found · Pricem" };
+  if (!product) return { title: "Listing Not Found · PriceAm" };
   return {
-    title: `${product.title} · ₦${product.price.toLocaleString()} · Pricem Nigeria`,
+    title: `${product.title} · ₦${product.price.toLocaleString()} · PriceAm Nigeria`,
     description: product.description.slice(0, 160),
   };
 }
@@ -247,12 +247,12 @@ export default async function ProductDetailPage({
           <div className="rounded-2xl border border-line bg-sunken/50 p-4 space-y-2 text-xs text-muted">
             <div className="flex items-center gap-2 font-bold text-ink">
               <ShieldAlert className="h-4 w-4 text-amber-500" />
-              <span>Pricem Safety Advisory</span>
+              <span>PriceAm Safety Advisory</span>
             </div>
             <ul className="space-y-1 list-disc list-inside text-[11px] leading-relaxed">
               <li>Inspect items thoroughly upon delivery before confirming receipt.</li>
               <li>Keep all payment &amp; waybill receipts logged in the Transaction Chat.</li>
-              <li>Pricem Dispute Arbitration is available for all registered transactions.</li>
+              <li>PriceAm Dispute Arbitration is available for all registered transactions.</li>
             </ul>
           </div>
         </div>

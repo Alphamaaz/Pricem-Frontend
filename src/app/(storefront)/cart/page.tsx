@@ -153,7 +153,7 @@ export default function CartPage() {
           Your shopping cart is empty
         </h1>
         <p className="mt-3 max-w-md mx-auto text-sm sm:text-base text-muted leading-relaxed">
-          Looks like you haven&apos;t added any items yet. Discover thousands of verified listings across Nigeria, or bargain for the best deals using Price Am!
+          Looks like you haven&apos;t added any items yet. Discover thousands of verified listings across Nigeria, or get the best deals using Price Am!
         </p>
 
         {/* Quick Category Discovery */}
@@ -371,7 +371,7 @@ export default function CartPage() {
                             <Link
                               href={`/products/${item.product}?negotiate=1`}
                               className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary-soft/50 px-2.5 py-1.5 font-bold text-primary hover:bg-primary-soft hover:shadow-soft transition-all"
-                              title="Bargain a lower price on this item"
+                              title="Make a Price Am offer on this item"
                             >
                               <Sparkles className="h-3.5 w-3.5" />
                               <span>Price Am</span>
@@ -548,7 +548,7 @@ export default function CartPage() {
               <li className="flex items-start gap-2">
                 <Handshake className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                 <span>
-                  <strong>Price Am Bargaining:</strong> Click &quot;Price Am&quot; on any item to negotiate directly before purchasing.
+                  <strong>Price Am Offers:</strong> Click &quot;Price Am&quot; on any item to negotiate directly before purchasing.
                 </span>
               </li>
               <li className="flex items-start gap-2">

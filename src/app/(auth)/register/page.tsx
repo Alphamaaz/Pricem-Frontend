@@ -65,10 +65,10 @@ export default function RegisterPage() {
   return (
     <div>
       <div className="mb-6">
-        <span className="text-xs font-bold uppercase tracking-wider text-primary">Join Pricem Nigeria</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-primary">Join PriceAm Nigeria</span>
         <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-0.5">Create your account</h1>
         <p className="text-xs sm:text-sm text-muted mt-1">
-          Start bargaining prices, ordering items, or opening your own verified merchant store.
+          Start making Price Am offers, ordering items, or opening your own verified merchant store.
         </p>
       </div>
 
@@ -172,7 +172,7 @@ export default function RegisterPage() {
         <div className="rounded-2xl bg-sunken/60 border border-line p-3 text-[11px] text-muted leading-relaxed flex items-start gap-2">
           <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
           <span>
-            By signing up, you agree to Pricem Marketplace terms, fair bargaining standards, and safe delivery guidelines.
+            By signing up, you agree to PriceAm Marketplace terms, fair trading standards, and safe delivery guidelines.
           </span>
         </div>
 

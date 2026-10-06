@@ -493,7 +493,7 @@ export default function ProfilePage() {
               href="/orders"
               className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-xs font-semibold text-muted hover:text-ink hover:bg-sunken/50 transition-colors"
             >
-              <span>My Orders &amp; Bargains</span>
+              <span>My Orders &amp; Price Am Deals</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
             {isSeller && (
@@ -688,7 +688,7 @@ export default function ProfilePage() {
               <div className="border-b border-line pb-4">
                 <h2 className="text-lg font-bold text-ink">Default Delivery Address</h2>
                 <p className="text-xs text-muted mt-0.5">
-                  Pre-filled automatically when closing accepted bargains and scheduling direct logistics.
+                  Pre-filled automatically when closing accepted Price Am deals and scheduling direct logistics.
                 </p>
               </div>
 
@@ -789,7 +789,7 @@ export default function ProfilePage() {
                 <div>
                   <h2 className="text-lg font-bold text-ink">Merchant Profile &amp; Bank Settlement</h2>
                   <p className="text-xs text-muted mt-0.5">
-                    Payout funds from accepted bargains are transferred directly to this Nigerian bank account.
+                    Payout funds from accepted Price Am deals are transferred directly to this Nigerian bank account.
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 border border-success/30 px-3 py-1 text-xs font-bold text-success shrink-0">
@@ -879,7 +879,7 @@ export default function ProfilePage() {
           {activeTab === "notifications" && (
             <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-soft space-y-6">
               <div className="border-b border-line pb-4">
-                <h2 className="text-lg font-bold text-ink">Bargain &amp; Deal Notifications</h2>
+                <h2 className="text-lg font-bold text-ink">Price Am &amp; Deal Notifications</h2>
                 <p className="text-xs text-muted mt-0.5">
                   Control how you receive real-time notifications about numeric offers and delivery milestones.
                 </p>
@@ -888,7 +888,7 @@ export default function ProfilePage() {
               <div className="space-y-4 divide-y divide-line">
                 <label className="flex items-center justify-between pt-3 cursor-pointer">
                   <div>
-                    <p className="text-xs sm:text-sm font-bold text-ink">New Price Am Bargain Offers</p>
+                    <p className="text-xs sm:text-sm font-bold text-ink">New Price Am Offers</p>
                     <p className="text-xs text-muted">Get notified immediately when a buyer submits a numeric offer on your item.</p>
                   </div>
                   <input

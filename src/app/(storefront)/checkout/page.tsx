@@ -226,7 +226,7 @@ function CheckoutContent() {
         <ShieldAlert className="h-5 w-5 text-warning shrink-0 mt-0.5" />
         <div className="text-xs sm:text-sm text-ink leading-relaxed">
           <strong className="font-bold text-ink">Important Safety Warning: </strong>
-          Pricem is not involved in any financial transactions. Never send money in advance! Agree on payment arrangements (such as Pay on Delivery or bank transfer upon personal inspection) directly with the seller. Report any fraudulent sellers immediately to have their account banned.
+          PriceAm is not involved in any financial transactions. Never send money in advance! Agree on payment arrangements (such as Pay on Delivery or bank transfer upon personal inspection) directly with the seller. Report any fraudulent sellers immediately to have their account banned.
         </div>
       </div>
 
@@ -523,7 +523,7 @@ function CheckoutContent() {
                       </span>
                       {negotiatedOrder && (
                         <span className="block text-[9px] font-black uppercase text-success">
-                          Bargained
+                          Price Am Deal
                         </span>
                       )}
                     </div>

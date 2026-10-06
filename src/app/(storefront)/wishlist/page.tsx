@@ -251,7 +251,7 @@ export default function WishlistPage() {
             </h1>
 
             <p className="text-xs sm:text-sm text-body/80 leading-relaxed">
-              Track your favorite products, monitor price drops, and jump directly into <strong>Price Am</strong> to make numeric bargain offers.
+              Track your favorite products, monitor price drops, and jump directly into <strong>Price Am</strong> to make direct offers.
             </p>
           </div>
 
