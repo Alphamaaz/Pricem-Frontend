@@ -88,6 +88,27 @@ export function MarketplaceCatalog({
   const [sort, setSort] = useState<ProductSort>("featured");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Sync viewMode with localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("priceam_view_mode");
+      if (saved === "grid" || saved === "list") {
+        setViewMode(saved);
+      }
+    } catch {
+      // ignore SSR / storage restrictions
+    }
+  }, []);
+
+  const handleSetViewMode = (mode: "grid" | "list") => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem("priceam_view_mode", mode);
+    } catch {
+      // ignore
+    }
+  };
+
   // Custom price range
   const [selectedPresetIndex, setSelectedPresetIndex] = useState(0);
   const [customMin, setCustomMin] = useState("");
@@ -272,29 +293,31 @@ export function MarketplaceCatalog({
             <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
           </div>
 
-          {/* Grid vs List View Toggle */}
-          <div className="hidden sm:flex items-center rounded-xl border border-line bg-sunken/60 p-0.5 shadow-xs">
+          {/* Grid vs List View Toggle (Visible on all devices including mobile) */}
+          <div className="flex items-center rounded-xl border border-line bg-sunken/60 p-0.5 shadow-xs shrink-0">
             <button
-              onClick={() => setViewMode("grid")}
+              onClick={() => handleSetViewMode("grid")}
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "grid"
                   ? "bg-surface text-primary shadow-xs"
                   : "text-muted hover:text-ink"
               }`}
-              title="Grid View"
+              title="Grid View (2 columns on mobile)"
+              aria-label="Grid View"
             >
-              <LayoutGrid className="h-3.5 w-3.5" />
+              <LayoutGrid className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
             </button>
             <button
-              onClick={() => setViewMode("list")}
+              onClick={() => handleSetViewMode("list")}
               className={`p-1.5 rounded-lg transition-all ${
                 viewMode === "list"
                   ? "bg-surface text-primary shadow-xs"
                   : "text-muted hover:text-ink"
               }`}
-              title="List View"
+              title="Single List View"
+              aria-label="Single List View"
             >
-              <List className="h-3.5 w-3.5" />
+              <List className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
             </button>
           </div>
         </div>
@@ -561,17 +584,23 @@ export function MarketplaceCatalog({
 
           {/* Loading Shimmer State */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5"
+                  : "flex flex-col gap-3 sm:gap-4"
+              }
+            >
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-3xl border border-line bg-surface p-4 space-y-4 animate-pulse">
-                  <div className="aspect-[4/3] rounded-2xl bg-sunken" />
+                <div key={i} className="rounded-2xl sm:rounded-3xl border border-line bg-surface p-3 sm:p-4 space-y-3 animate-pulse">
+                  <div className="aspect-[4/3] rounded-xl sm:rounded-2xl bg-sunken" />
                   <div className="space-y-2">
-                    <div className="h-4 bg-sunken rounded-md w-3/4" />
+                    <div className="h-3.5 bg-sunken rounded-md w-3/4" />
                     <div className="h-3 bg-sunken rounded-md w-1/2" />
                   </div>
                   <div className="pt-2 border-t border-line flex justify-between items-center">
-                    <div className="h-5 bg-sunken rounded-md w-20" />
-                    <div className="h-8 bg-sunken rounded-xl w-24" />
+                    <div className="h-4 bg-sunken rounded-md w-16" />
+                    <div className="h-7 bg-sunken rounded-xl w-20" />
                   </div>
                 </div>
               ))}
@@ -597,8 +626,8 @@ export function MarketplaceCatalog({
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-                  : "flex flex-col gap-4"
+                  ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5"
+                  : "flex flex-col gap-3 sm:gap-4"
               }
             >
               {products.map((p) => (
