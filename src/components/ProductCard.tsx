@@ -21,11 +21,11 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
 
   if (viewMode === "list") {
     return (
-      <article className="group rounded-2xl sm:rounded-3xl bg-surface border border-line overflow-hidden transition-all duration-200 hover:shadow-lifted hover:border-primary/40 flex flex-row">
-        {/* Left: Image Container */}
+      <article className="group rounded-3xl bg-surface border border-line overflow-hidden transition-all duration-300 hover:shadow-lifted hover:border-primary/40 flex flex-col">
+        {/* Top: Full-Width Image Container */}
         <Link
           href={`/products/${product._id}`}
-          className="relative w-28 min-w-[7rem] xs:w-36 xs:min-w-[9rem] sm:w-60 sm:min-w-[15rem] aspect-square sm:aspect-auto bg-sunken overflow-hidden block shrink-0"
+          className="relative w-full aspect-[16/10] sm:aspect-[2/1] bg-sunken overflow-hidden block"
         >
           <img
             src={product.coverImage?.url ? assetUrl(product.coverImage.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80"}
@@ -37,118 +37,116 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
                 el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80";
               }
             }}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
 
           {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+          <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center">
             {product.isFeatured && (
-              <span className="rounded-full bg-ink/90 backdrop-blur px-2 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider text-white shadow-soft">
+              <span className="rounded-full bg-ink/90 backdrop-blur px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-white shadow-soft">
                 Featured
               </span>
             )}
             <span
-              className={`rounded-full px-2 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider backdrop-blur border shadow-xs ${
+              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur border shadow-xs ${
                 product.condition === "new"
-                  ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-700"
+                  ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-800"
                   : "bg-surface/90 border-line text-body"
               }`}
             >
-              {product.condition === "new" ? "New" : "Used"}
+              {product.condition === "new" ? "Brand New" : "Pre-Owned"}
             </span>
           </div>
 
-          {/* Mobile Bottom Badge */}
-          {isNegotiable && (
-            <span className="sm:hidden absolute bottom-2 right-2 inline-flex items-center gap-0.5 rounded-full bg-white/95 backdrop-blur px-1.5 py-0.5 text-[9px] font-black text-primary shadow-soft border border-line">
-              <Handshake className="h-2.5 w-2.5 text-primary" strokeWidth={2.2} />
-              Price Am
+          {/* Location Pin Bottom Left */}
+          <div className="absolute bottom-3 left-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-sm px-2.5 py-1 text-xs font-semibold text-white">
+              <MapPin className="h-3.5 w-3.5 text-white/80" />
+              <span>{locationText}</span>
             </span>
-          )}
+          </div>
 
+          {/* Negotiable Tag Bottom Right */}
           {isNegotiable && (
-            <span className="hidden sm:inline-flex absolute bottom-3 right-3 items-center gap-1 rounded-full bg-white/95 backdrop-blur px-2.5 py-1 text-[11px] font-black text-primary shadow-soft border border-line">
-              <Handshake className="h-3.5 w-3.5 text-primary" strokeWidth={2.2} />
-              Price Am
-            </span>
+            <div className="absolute bottom-3 right-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur px-3 py-1 text-xs font-black text-primary shadow-soft border border-line">
+                <Handshake className="h-3.5 w-3.5 text-primary" strokeWidth={2.2} />
+                Price Am
+              </span>
+            </div>
           )}
         </Link>
 
-        {/* Right: Content & Actions */}
-        <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between min-w-0 gap-2 sm:gap-3">
-          <div className="space-y-1 sm:space-y-1.5 min-w-0">
-            <div className="flex items-center justify-between gap-1 text-[10px] sm:text-xs text-muted">
-              <span className="inline-flex items-center gap-1 font-semibold text-ink/80 hover:text-primary transition-colors truncate max-w-[120px] sm:max-w-none">
-                <Store className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary shrink-0" />
-                <span className="truncate">{product.storeName}</span>
+        {/* Bottom: Details & Actions */}
+        <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between gap-3 sm:gap-4">
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="flex items-center justify-between gap-2 text-xs text-muted">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-ink/80 hover:text-primary transition-colors">
+                <Store className="h-3.5 w-3.5 text-primary" />
+                {product.storeName}
               </span>
-              <span className="inline-flex items-center gap-1 font-medium text-muted truncate">
-                <MapPin className="h-3 w-3 text-muted shrink-0" />
-                <span className="truncate">{locationText}</span>
-              </span>
+              {product.ratingCount > 0 ? (
+                <span className="flex items-center gap-1 font-bold text-ink">
+                  <Star className="h-3.5 w-3.5 fill-accent text-accent" />
+                  {product.ratingAverage.toFixed(1)} ({product.ratingCount})
+                </span>
+              ) : (
+                <span className="text-[11px] uppercase font-bold text-muted/70">
+                  {product.category}
+                </span>
+              )}
             </div>
 
             <Link href={`/products/${product._id}`} className="block group-hover:text-primary transition-colors">
-              <h3 className="text-xs sm:text-base font-bold text-ink leading-snug line-clamp-2">
+              <h3 className="text-base sm:text-lg font-bold text-ink leading-snug line-clamp-2">
                 {product.title}
               </h3>
             </Link>
 
-            <p className="hidden md:block text-xs text-muted line-clamp-2 leading-relaxed">
-              {product.description}
-            </p>
+            {product.description && (
+              <p className="text-xs sm:text-sm text-muted line-clamp-2 leading-relaxed">
+                {product.description}
+              </p>
+            )}
           </div>
 
           {/* Price, Delivery & Action */}
-          <div className="pt-2 border-t border-line/60 flex items-center justify-between gap-2">
+          <div className="pt-3 border-t border-line/60 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="flex items-baseline gap-1.5 sm:gap-2">
-                <span className="text-sm sm:text-2xl font-black text-ink">
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg sm:text-2xl font-black text-ink">
                   ₦{product.price.toLocaleString()}
                 </span>
                 {isNegotiable && (
-                  <span className="hidden xs:inline-block text-[10px] sm:text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-md">
+                  <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-md">
                     Negotiable
                   </span>
                 )}
               </div>
 
-              <div className="hidden sm:flex items-center gap-3 mt-1 text-[11px] text-muted">
+              <div className="flex items-center gap-3 mt-1 text-xs text-muted">
                 <span className="inline-flex items-center gap-1">
-                  <Truck className="h-3 w-3 text-muted" />
+                  <Truck className="h-3.5 w-3.5 text-muted" />
                   {product.delivery?.mode === "seller_included" ? "Free Delivery" : "Buyer Arranges Delivery"}
                 </span>
-                {product.ratingCount > 0 && (
-                  <span className="inline-flex items-center gap-1 text-ink font-semibold">
-                    <Star className="h-3 w-3 fill-accent text-accent" />
-                    {product.ratingAverage.toFixed(1)} ({product.ratingCount})
-                  </span>
-                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <div className="flex items-center gap-2">
               <Link
                 href={`/products/${product._id}`}
-                className="hidden sm:inline-flex h-8 sm:h-9 items-center justify-center rounded-xl border border-line bg-surface px-3 sm:px-4 text-xs font-bold text-ink hover:border-primary hover:text-primary transition-all shadow-xs"
+                className="inline-flex h-9 sm:h-10 items-center justify-center rounded-xl border border-line bg-surface px-4 text-xs sm:text-sm font-bold text-ink hover:border-primary hover:text-primary transition-all shadow-xs"
               >
-                Details
+                View Details
               </Link>
-              {isNegotiable ? (
+              {isNegotiable && (
                 <Link
                   href={`/products/${product._id}?negotiate=1`}
-                  className="inline-flex h-7 sm:h-9 items-center justify-center gap-1 sm:gap-1.5 rounded-xl bg-gradient-to-r from-primary to-accent px-2.5 sm:px-4 text-[11px] sm:text-xs font-black text-white shadow-soft hover:brightness-105 active:scale-95 transition-all"
-                  title="Make a Price Am offer"
+                  className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-accent px-4 sm:px-5 text-xs sm:text-sm font-black text-white shadow-soft hover:brightness-105 active:scale-95 transition-all"
+                  title="Make an offer with Price Am"
                 >
-                  <Handshake className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <Handshake className="h-4 w-4" />
                   <span>Price Am</span>
-                </Link>
-              ) : (
-                <Link
-                  href={`/products/${product._id}`}
-                  className="inline-flex h-7 sm:h-9 items-center justify-center rounded-xl border border-line bg-surface px-2.5 sm:px-4 text-[11px] sm:text-xs font-bold text-ink hover:border-primary hover:text-primary transition-all shadow-xs"
-                >
-                  View
                 </Link>
               )}
             </div>

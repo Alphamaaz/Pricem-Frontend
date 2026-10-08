@@ -588,19 +588,19 @@ export function MarketplaceCatalog({
               className={
                 viewMode === "grid"
                   ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5"
-                  : "flex flex-col gap-3 sm:gap-4"
+                  : "flex flex-col gap-4 sm:gap-6"
               }
             >
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl sm:rounded-3xl border border-line bg-surface p-3 sm:p-4 space-y-3 animate-pulse">
-                  <div className="aspect-[4/3] rounded-xl sm:rounded-2xl bg-sunken" />
+                <div key={i} className="rounded-3xl border border-line bg-surface p-4 space-y-3 sm:space-y-4 animate-pulse">
+                  <div className={viewMode === "grid" ? "aspect-[4/3] rounded-2xl bg-sunken" : "aspect-[16/10] sm:aspect-[2/1] rounded-2xl bg-sunken"} />
                   <div className="space-y-2">
-                    <div className="h-3.5 bg-sunken rounded-md w-3/4" />
+                    <div className="h-4 bg-sunken rounded-md w-3/4" />
                     <div className="h-3 bg-sunken rounded-md w-1/2" />
                   </div>
                   <div className="pt-2 border-t border-line flex justify-between items-center">
-                    <div className="h-4 bg-sunken rounded-md w-16" />
-                    <div className="h-7 bg-sunken rounded-xl w-20" />
+                    <div className="h-5 bg-sunken rounded-md w-24" />
+                    <div className="h-9 bg-sunken rounded-xl w-28" />
                   </div>
                 </div>
               ))}
@@ -627,7 +627,7 @@ export function MarketplaceCatalog({
               className={
                 viewMode === "grid"
                   ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5"
-                  : "flex flex-col gap-3 sm:gap-4"
+                  : "flex flex-col gap-4 sm:gap-6"
               }
             >
               {products.map((p) => (
