@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BarChart3,
-  Building2,
   CheckCircle2,
   Handshake,
   PackagePlus,
@@ -21,25 +20,6 @@ import { Alert, Button, Input, Label } from "@/components/ui";
 import { Logo } from "@/components/Logo";
 import type { SellerProfile, User } from "@/lib/types";
 
-const NIGERIAN_BANKS = [
-  "Access Bank",
-  "Guaranty Trust Bank (GTBank)",
-  "Zenith Bank",
-  "First Bank of Nigeria",
-  "United Bank for Africa (UBA)",
-  "Kuda Bank",
-  "OPay",
-  "Moniepoint Microfinance Bank",
-  "Stanbic IBTC Bank",
-  "Fidelity Bank",
-  "First City Monument Bank (FCMB)",
-  "Sterling Bank",
-  "Union Bank of Nigeria",
-  "Wema Bank / ALAT",
-  "Polaris Bank",
-  "Ecobank Nigeria",
-];
-
 export default function SellerOnboardingPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -49,7 +29,6 @@ export default function SellerOnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [createdProfile, setCreatedProfile] = useState<SellerProfile | null>(null);
   const [slugPreview, setSlugPreview] = useState("");
-  const [showBankDetails, setShowBankDetails] = useState(false);
 
   useEffect(() => {
     if (!tokenStore.get()) {
@@ -72,18 +51,12 @@ export default function SellerOnboardingPage() {
     const storeName = String(form.get("storeName") || "").trim();
     const storeSlug = String(form.get("storeSlug") || "").trim().toLowerCase();
     const description = String(form.get("description") || "").trim();
-    const bankName = String(form.get("bankName") || "").trim();
-    const accountNumber = String(form.get("accountNumber") || "").trim();
-    const accountName = String(form.get("accountName") || "").trim();
 
     try {
       const res = await applyToSell({
         storeName,
         storeSlug: storeSlug || undefined,
         description: description || undefined,
-        bankName: bankName || undefined,
-        accountNumber: accountNumber || undefined,
-        accountName: accountName || undefined,
       });
 
       setCreatedProfile(res.sellerProfile);
@@ -255,8 +228,8 @@ export default function SellerOnboardingPage() {
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <div>
-                <h4 className="text-xs font-bold text-ink">Safe Escrow Protection</h4>
-                <p className="text-[11px] text-muted">Buyers pay into escrow before you dispatch. Your payout is guaranteed.</p>
+                <h4 className="text-xs font-bold text-ink">Direct Buyer Connections</h4>
+                <p className="text-[11px] text-muted">Connect directly with buyers via WhatsApp and phone to agree and seal deals safely.</p>
               </div>
             </div>
 
@@ -354,89 +327,6 @@ export default function SellerOnboardingPage() {
                 />
               </div>
 
-              {/* Bank Payout Section (Optional) */}
-              <div className="pt-2">
-                <div className="rounded-2xl border border-line bg-sunken/40 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-primary" />
-                      <span className="text-xs font-bold text-ink">
-                        Nigerian Bank Payout Details
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowBankDetails((v) => !v)}
-                      className="text-xs font-semibold text-primary hover:underline"
-                    >
-                      {showBankDetails ? "Hide bank fields" : "+ Add payout bank now (Optional)"}
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    You can add your Nigerian bank account now, or add it later in your profile before requesting your first withdrawal.
-                  </p>
-
-                  {showBankDetails && (
-                    <div className="pt-2 space-y-3 border-t border-line/60">
-                      <div>
-                        <Label htmlFor="bankName" className="text-xs font-bold text-ink">
-                          Select Bank
-                        </Label>
-                        <select
-                          id="bankName"
-                          name="bankName"
-                          className="w-full h-11 rounded-2xl border border-line bg-surface px-3.5 text-sm text-ink focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary transition-shadow mt-1"
-                        >
-                          <option value="">Select your bank (Optional)</option>
-                          {NIGERIAN_BANKS.map((b) => (
-                            <option key={b} value={b}>
-                              {b}
-                            </option>
-                          ))}
-                        </select>
-                        {fieldErrors.bankName && (
-                          <p className="text-xs text-danger mt-1 font-medium">{fieldErrors.bankName}</p>
-                        )}
-                      </div>
-
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        <div>
-                          <Label htmlFor="accountNumber" className="text-xs font-bold text-ink">
-                            10-Digit Account Number
-                          </Label>
-                          <Input
-                            id="accountNumber"
-                            name="accountNumber"
-                            inputMode="numeric"
-                            maxLength={10}
-                            placeholder="0123456789"
-                            className="mt-1 h-11 rounded-2xl text-sm font-mono font-bold"
-                          />
-                          {fieldErrors.accountNumber && (
-                            <p className="text-xs text-danger mt-1 font-medium">{fieldErrors.accountNumber}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <Label htmlFor="accountName" className="text-xs font-bold text-ink">
-                            Account Holder Name
-                          </Label>
-                          <Input
-                            id="accountName"
-                            name="accountName"
-                            placeholder="As registered with bank"
-                            className="mt-1 h-11 rounded-2xl text-sm"
-                          />
-                          {fieldErrors.accountName && (
-                            <p className="text-xs text-danger mt-1 font-medium">{fieldErrors.accountName}</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
               {/* Submit Button */}
               <div className="pt-2">
                 <Button
@@ -457,7 +347,7 @@ export default function SellerOnboardingPage() {
                   )}
                 </Button>
                 <p className="text-[11px] text-center text-muted mt-2">
-                  By clicking launch, you agree to PriceAm Merchant Terms & Safe Escrow Trading Policy.
+                  By clicking launch, you agree to PriceAm Merchant Terms & Safety Guidelines.
                 </p>
               </div>
             </form>
