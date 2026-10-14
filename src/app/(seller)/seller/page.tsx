@@ -279,7 +279,7 @@ function SellerDashboardContent() {
             ₦{(fin?.grossRevenue || 0).toLocaleString()}
           </div>
           <div className="flex items-center justify-between text-[11px] text-muted pt-1 border-t border-line/60">
-            <span>Settled: ₦{(fin?.completedRevenue || 0).toLocaleString()}</span>
+            <span>Completed Deals: ₦{(fin?.completedRevenue || 0).toLocaleString()}</span>
             <span className="text-primary font-bold">AOV: ₦{(fin?.averageOrderValue || 0).toLocaleString()}</span>
           </div>
         </div>
@@ -477,60 +477,71 @@ function SellerDashboardContent() {
           </div>
         </section>
 
-        {/* Right: Settlement & Nigerian Bank Payouts Hub (4 cols) */}
+        {/* Right: Store Operations & Direct Deals Hub (4 cols) */}
         <section className="lg:col-span-4 rounded-3xl border border-line bg-surface p-6 sm:p-7 shadow-soft space-y-6">
           <div className="flex items-center gap-2 border-b border-line pb-4">
-            <Building2 className="h-5 w-5 text-primary" />
+            <Store className="h-5 w-5 text-primary" />
             <h2 className="text-base font-bold text-ink">
-              Store Sales Volume
+              Store Operations
             </h2>
           </div>
 
           <div className="rounded-2xl bg-gradient-to-br from-primary-soft/60 via-surface to-accent/15 border border-primary/20 p-5 space-y-3">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-muted block">
-              Completed Deals Volume
-            </span>
-            <div className="text-2xl font-black text-ink">
-              ₦{(fin?.completedRevenue || 0).toLocaleString()}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-primary">
+                Trading Model
+              </span>
+              <span className="rounded-full bg-success-soft text-success text-[10px] font-black px-2.5 py-0.5">
+                0% Commission
+              </span>
+            </div>
+            <div className="text-lg font-black text-ink">
+              Direct Buyer Settlement
             </div>
             <p className="text-[11px] text-muted leading-relaxed">
-              Total sales revenue from completed and confirmed buyer deals on your store.
+              Buyers pay you directly upon item inspection (cash or instant bank transfer). Keep 100% of your selling price with zero platform deductions.
             </p>
           </div>
 
-          {/* Registered Bank Account Info */}
+          {/* Store Info & Guidelines */}
           <div className="space-y-3 text-xs">
             <div className="flex justify-between items-center py-2 border-b border-line/60">
-              <span className="text-muted">Settlement Bank:</span>
+              <span className="text-muted">Store Name:</span>
               <strong className="text-ink">
-                {user?.sellerProfile?.payoutDetails?.bankName || "Commercial Bank"}
+                {user?.sellerProfile?.storeName || "My Store"}
               </strong>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-line/60">
-              <span className="text-muted">Account Number:</span>
-              <strong className="text-ink font-mono">
-                {user?.sellerProfile?.payoutDetails?.accountNumber
-                  ? `•••• ${user.sellerProfile.payoutDetails.accountNumber.slice(-4)}`
-                  : "•••• 4821"}
-              </strong>
+              <span className="text-muted">Listing Fee:</span>
+              <strong className="text-success font-black">₦0 (100% Free)</strong>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-line/60">
-              <span className="text-muted">Account Name:</span>
-              <strong className="text-ink">
-                {user?.sellerProfile?.payoutDetails?.accountName || user?.fullName}
-              </strong>
+              <span className="text-muted">Payment Method:</span>
+              <strong className="text-ink">Direct on Meetup / Inspection</strong>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-line/60">
-              <span className="text-muted">Listing Fee Rate:</span>
-              <strong className="text-success font-black">0% (Zero Listing Fees)</strong>
+              <span className="text-muted">Account Status:</span>
+              <span className="inline-flex items-center gap-1 font-bold text-success">
+                <CheckCircle2 className="h-3.5 w-3.5" /> Active Merchant
+              </span>
             </div>
           </div>
 
-          <Link href="/profile" className="block pt-2">
-            <Button variant="outline" full size="sm" className="rounded-xl font-bold">
-              Update Bank Payout Details
-            </Button>
-          </Link>
+          {/* Quick Actions */}
+          <div className="pt-2 space-y-2.5">
+            <Link href="/seller/products/new" className="block">
+              <Button full size="sm" className="rounded-xl font-bold">
+                <Plus className="h-4 w-4 mr-1.5" />
+                Post New Product
+              </Button>
+            </Link>
+            <Link href="/seller/products" className="block">
+              <Button variant="outline" full size="sm" className="rounded-xl font-bold">
+                <Package className="h-4 w-4 mr-1.5" />
+                Manage Inventory
+              </Button>
+            </Link>
+          </div>
         </section>
       </div>
 

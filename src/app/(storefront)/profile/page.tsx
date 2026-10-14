@@ -5,13 +5,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
-  Banknote,
   Bell,
   CheckCircle2,
   ChevronRight,
   ExternalLink,
   KeyRound,
-  Landmark,
   Lock,
   LogOut,
   Mail,
@@ -20,6 +18,7 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Store,
   Truck,
   User as UserIcon,
 } from "lucide-react";
@@ -31,20 +30,6 @@ import type { Role, User } from "@/lib/types";
 
 type SettingsTab = "profile" | "security" | "address" | "seller" | "notifications";
 
-const NIGERIAN_BANKS = [
-  "Access Bank",
-  "Guaranty Trust Bank (GTBank)",
-  "Zenith Bank",
-  "First Bank of Nigeria",
-  "United Bank for Africa (UBA)",
-  "Kuda Bank",
-  "OPay",
-  "PalmPay",
-  "Stanbic IBTC",
-  "Fidelity Bank",
-  "Sterling Bank",
-  "Moniepoint MFB",
-];
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -93,11 +78,8 @@ export default function ProfilePage() {
   const [addressNotes, setAddressNotes] = useState("");
   const [savingAddress, setSavingAddress] = useState(false);
 
-  // Seller / Payout Form State
+  // Seller Store Form State
   const [sellerBio, setSellerBio] = useState("");
-  const [payoutBank, setPayoutBank] = useState("Access Bank");
-  const [payoutAccountNumber, setPayoutAccountNumber] = useState("");
-  const [payoutAccountName, setPayoutAccountName] = useState("");
   const [savingSeller, setSavingSeller] = useState(false);
 
   // Notification Toggles
@@ -120,11 +102,6 @@ export default function ProfilePage() {
         setContactNumber(u.contactNumber || "");
         if (u.sellerProfile) {
           setSellerBio(u.sellerProfile.description || "");
-          if (u.sellerProfile.payoutDetails) {
-            setPayoutBank(u.sellerProfile.payoutDetails.bankName || "Access Bank");
-            setPayoutAccountNumber(u.sellerProfile.payoutDetails.accountNumber || "");
-            setPayoutAccountName(u.sellerProfile.payoutDetails.accountName || "");
-          }
         }
       })
       .catch(() => router.replace("/login"))
@@ -265,16 +242,13 @@ export default function ProfilePage() {
     try {
       const res = await updateProfile({
         description: sellerBio.trim(),
-        bankName: payoutBank,
-        accountNumber: payoutAccountNumber.trim(),
-        accountName: payoutAccountName.trim(),
       });
       setUser(res.user);
-      setGlobalSuccess("Store and payout details updated!");
+      setGlobalSuccess("Store profile updated successfully!");
       setTimeout(() => setGlobalSuccess(null), 4000);
     } catch (err) {
       setGlobalError(
-        err instanceof ApiRequestError ? err.message : "Failed to update payout settings.",
+        err instanceof ApiRequestError ? err.message : "Failed to update store settings.",
       );
     } finally {
       setSavingSeller(false);
@@ -470,8 +444,8 @@ export default function ProfilePage() {
                   : "text-ink hover:bg-sunken/60"
               }`}
             >
-              <Landmark className="h-4 w-4 shrink-0" />
-              <span>Merchant &amp; Payouts</span>
+              <Store className="h-4 w-4 shrink-0" />
+              <span>Store Profile</span>
             </button>
           )}
 
@@ -781,15 +755,15 @@ export default function ProfilePage() {
           )}
 
           {/* =============================================================== */}
-          {/* TAB 4: MERCHANT & PAYOUT SETTINGS                               */}
+          {/* TAB 4: MERCHANT STORE PROFILE                                  */}
           {/* =============================================================== */}
           {activeTab === "seller" && isSeller && (
             <div className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-soft space-y-6">
               <div className="border-b border-line pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-bold text-ink">Merchant Profile &amp; Bank Settlement</h2>
+                  <h2 className="text-lg font-bold text-ink">Merchant Store Profile</h2>
                   <p className="text-xs text-muted mt-0.5">
-                    Payout funds from accepted Price Am deals are transferred directly to this Nigerian bank account.
+                    Manage your public storefront bio, description, and trading details.
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 border border-success/30 px-3 py-1 text-xs font-bold text-success shrink-0">
@@ -804,59 +778,19 @@ export default function ProfilePage() {
                     Store Bio / Tagline
                   </label>
                   <textarea
-                    rows={3}
+                    rows={4}
                     value={sellerBio}
                     onChange={(e) => setSellerBio(e.target.value)}
-                    placeholder="Tell buyers about your products, dispatch speed, and warranties…"
+                    placeholder="Tell buyers about your products, inspection terms, and pickup locations…"
                     className="w-full rounded-2xl border border-line bg-sunken/60 p-4 text-xs sm:text-sm text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/25"
                   />
                 </div>
 
-                <div className="border-t border-line pt-5 space-y-4">
-                  <h3 className="text-xs font-bold text-ink uppercase tracking-wider flex items-center gap-1.5">
-                    <Banknote className="h-4 w-4 text-primary" />
-                    Settlement Bank Account (Nigeria)
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted">Bank Name</label>
-                      <select
-                        value={payoutBank}
-                        onChange={(e) => setPayoutBank(e.target.value)}
-                        className="w-full h-11 rounded-2xl border border-line bg-sunken/60 px-3 text-xs sm:text-sm font-semibold text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/25 cursor-pointer"
-                      >
-                        {NIGERIAN_BANKS.map((bank) => (
-                          <option key={bank} value={bank}>
-                            {bank}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted">Account Number (10 digits)</label>
-                      <input
-                        type="text"
-                        maxLength={10}
-                        value={payoutAccountNumber}
-                        onChange={(e) => setPayoutAccountNumber(e.target.value)}
-                        placeholder="e.g. 0123456789"
-                        className="w-full h-11 rounded-2xl border border-line bg-sunken/60 px-4 text-xs sm:text-sm text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/25"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted">Account Name</label>
-                      <input
-                        type="text"
-                        value={payoutAccountName}
-                        onChange={(e) => setPayoutAccountName(e.target.value)}
-                        placeholder="e.g. John Doe Enterprises"
-                        className="w-full h-11 rounded-2xl border border-line bg-sunken/60 px-4 text-xs sm:text-sm text-ink focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/25"
-                      />
-                    </div>
-                  </div>
+                <div className="rounded-2xl bg-sunken/50 border border-line/60 p-4 space-y-1.5 text-xs">
+                  <span className="font-bold text-ink block">Direct Trading Guidelines:</span>
+                  <p className="text-muted leading-relaxed">
+                    PriceAm facilitates direct buyer-to-seller negotiation. Buyers pay you directly (cash or instant bank transfer) upon physical inspection and collection. Keep 100% of your earnings with 0% platform commission.
+                  </p>
                 </div>
 
                 <div className="pt-4 border-t border-line flex justify-end">
@@ -866,7 +800,7 @@ export default function ProfilePage() {
                     className="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 h-11 text-xs sm:text-sm font-bold text-white shadow-soft hover:bg-primary-dark active:scale-95"
                   >
                     <Save className="h-4 w-4" />
-                    {savingSeller ? "Saving…" : "Save Settlement Details"}
+                    {savingSeller ? "Saving…" : "Save Store Profile"}
                   </Button>
                 </div>
               </form>
