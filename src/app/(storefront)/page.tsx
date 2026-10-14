@@ -5,9 +5,9 @@ import {
   BadgeCheck,
   Handshake,
   Headphones,
+  MessageCircle,
   Sparkles,
   Store,
-  Truck,
 } from "lucide-react";
 import { listProductsServer } from "@/lib/products";
 import { MarketplaceCatalog } from "@/components/MarketplaceCatalog";
@@ -24,9 +24,9 @@ const HOW_IT_WORKS = [
     body: "Send a numeric Price Am offer. The seller can accept or counter with zero spam chat.",
   },
   {
-    icon: Truck,
-    title: "3. Direct logistics & delivery",
-    body: "Once an agreed price is locked, your transaction chat opens for delivery arrangement.",
+    icon: MessageCircle,
+    title: "3. Connect & seal the deal",
+    body: "Once an agreed price is locked, connect directly with the seller to inspect and complete your deal.",
   },
 ];
 
@@ -63,7 +63,7 @@ export default async function HomePage() {
             </h1>
 
             <p className="text-xs sm:text-sm text-body/90 max-w-lg leading-relaxed">
-              PriceAm is where buyers make numeric offers and sellers counter — agree on a price that works for both of you, then arrange direct delivery.
+              PriceAm is where buyers make numeric offers and sellers counter — agree on a fair price, then connect directly with the seller to inspect and close the deal.
             </p>
 
             <div className="pt-1 flex flex-wrap items-center gap-3">

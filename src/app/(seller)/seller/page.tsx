@@ -482,19 +482,19 @@ function SellerDashboardContent() {
           <div className="flex items-center gap-2 border-b border-line pb-4">
             <Building2 className="h-5 w-5 text-primary" />
             <h2 className="text-base font-bold text-ink">
-              Settlement Payouts
+              Store Sales Volume
             </h2>
           </div>
 
           <div className="rounded-2xl bg-gradient-to-br from-primary-soft/60 via-surface to-accent/15 border border-primary/20 p-5 space-y-3">
             <span className="text-[10px] uppercase font-bold tracking-wider text-muted block">
-              Available Escrow Balance
+              Completed Deals Volume
             </span>
             <div className="text-2xl font-black text-ink">
               ₦{(fin?.completedRevenue || 0).toLocaleString()}
             </div>
             <p className="text-[11px] text-muted leading-relaxed">
-              Funds from delivered and confirmed buyer deals are settled automatically to your registered Nigerian bank account.
+              Total sales revenue from completed and confirmed buyer deals on your store.
             </p>
           </div>
 
@@ -648,13 +648,13 @@ function SellerDashboardContent() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <Truck className="h-5 w-5 text-primary" />
+              <Package className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold text-ink">
-                Recent Customer Orders &amp; Logistics
+                Recent Customer Orders
               </h2>
             </div>
             <p className="text-xs text-muted mt-0.5">
-              Live incoming customer purchases, courier dispatches, and agreed Price Am deals.
+              Live incoming customer purchases and agreed Price Am deals.
             </p>
           </div>
 
@@ -732,7 +732,7 @@ function SellerDashboardContent() {
                           Price Am
                         </span>
                       )}
-                      Logistics →
+                      View Order →
                     </div>
                   </div>
                 </Link>

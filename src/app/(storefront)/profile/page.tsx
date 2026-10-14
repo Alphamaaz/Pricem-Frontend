@@ -688,7 +688,7 @@ export default function ProfilePage() {
               <div className="border-b border-line pb-4">
                 <h2 className="text-lg font-bold text-ink">Default Delivery Address</h2>
                 <p className="text-xs text-muted mt-0.5">
-                  Pre-filled automatically when closing accepted Price Am deals and scheduling direct logistics.
+                  Pre-filled automatically when closing accepted Price Am deals and placing orders.
                 </p>
               </div>
 
@@ -914,8 +914,8 @@ export default function ProfilePage() {
 
                 <label className="flex items-center justify-between pt-4 cursor-pointer">
                   <div>
-                    <p className="text-xs sm:text-sm font-bold text-ink">Direct Logistics &amp; Delivery Updates</p>
-                    <p className="text-xs text-muted">Receive tracking milestones (in transit, out for delivery, and completed).</p>
+                    <p className="text-xs sm:text-sm font-bold text-ink">Order &amp; Fulfillment Updates</p>
+                    <p className="text-xs text-muted">Receive updates when an order status changes (dispatched, delivered, and completed).</p>
                   </div>
                   <input
                     type="checkbox"

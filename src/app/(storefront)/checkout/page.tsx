@@ -272,7 +272,7 @@ function CheckoutContent() {
           <section className="rounded-3xl bg-surface border border-line shadow-soft p-6 space-y-4">
             <h2 className="text-sm font-bold text-ink uppercase tracking-wider text-muted flex items-center gap-2">
               <Truck className="h-4 w-4 text-primary" />
-              1. Delivery / Logistics Method
+              1. Collection &amp; Delivery Arrangement
             </h2>
 
             <div className="grid sm:grid-cols-2 gap-3.5">
@@ -550,7 +550,7 @@ function CheckoutContent() {
               )}
 
               <div className="flex justify-between text-body">
-                <span>Logistics & Dispatch</span>
+                <span>Delivery / Collection</span>
                 <span className="font-semibold text-primary">Arranged with Seller</span>
               </div>
 
@@ -571,10 +571,10 @@ function CheckoutContent() {
             <div className="rounded-2xl bg-sunken/60 border border-line p-4 space-y-2 text-xs">
               <div className="flex items-center gap-1.5 font-bold text-ink">
                 <Clock className="h-3.5 w-3.5 text-primary" />
-                <span>Fast Logistics Handoff</span>
+                <span>Direct Seller Coordination</span>
               </div>
               <p className="text-[11px] text-muted leading-relaxed">
-                Once confirmed, use the Transaction Chat on your order page to view dispatch updates, coordinate rider arrival, or exchange waybill numbers.
+                Once confirmed, use the Transaction Chat on your order page to coordinate meetup, inspection, or dispatch directly with the seller.
               </p>
             </div>
           </div>

@@ -50,7 +50,7 @@ function getStatusBadge(status: OrderStatus) {
       return { label: "Awaiting Settlement", className: "bg-warning/15 text-ink border-warning/30", icon: Clock };
     case "paid":
     case "processing":
-      return { label: "Processing / Logistics", className: "bg-primary-soft text-primary border-primary/20", icon: Package };
+      return { label: "Processing", className: "bg-primary-soft text-primary border-primary/20", icon: Package };
     case "shipped":
       return { label: "In Transit / Shipped", className: "bg-accent/20 text-ink border-accent/30", icon: Truck };
     case "delivered":
@@ -243,7 +243,7 @@ export default function OrderDetailPage({
     { key: "created", label: "Deal Agreed", done: true },
     {
       key: "arranged",
-      label: "Logistics Arranged",
+      label: "Delivery Arranged",
       done: arrangementStatus === "acknowledged" || ["shipped", "delivered", "completed"].includes(order.orderStatus),
     },
     {
@@ -483,7 +483,7 @@ export default function OrderDetailPage({
               </p>
               {order.deliveryArrangement?.courierName && (
                 <p>
-                  <strong className="text-ink">Courier / Logistics: </strong>
+                  <strong className="text-ink">Courier / Rider: </strong>
                   {order.deliveryArrangement.courierName}
                 </p>
               )}
@@ -505,7 +505,7 @@ export default function OrderDetailPage({
             {isSeller && ["pending_payment", "paid", "processing"].includes(order.orderStatus) && (
               <form onSubmit={submitDeliveryArrangement} className="mt-5 pt-4 border-t border-line space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted">
-                  Update Courier Logistics
+                  Update Delivery / Dispatch Details
                 </h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
@@ -813,7 +813,7 @@ export default function OrderDetailPage({
                 </summary>
                 <form onSubmit={submitDispute} className="mt-4 space-y-3 pt-3 border-t border-line">
                   <div className="rounded-xl bg-danger-soft/50 border border-danger/20 p-3 text-[11px] text-body leading-relaxed">
-                    <strong className="text-danger font-bold">PriceAm Protection:</strong> We mediate directly between buyers and sellers. Sellers in violation face immediate store bans and blacklisting.
+                    <strong className="text-danger font-bold">PriceAm Community Safety:</strong> We investigate reported violations directly. Sellers engaging in fraud face immediate account bans and blacklisting.
                   </div>
                   <div>
                     <Label htmlFor="disputeReason">Select Primary Issue</Label>

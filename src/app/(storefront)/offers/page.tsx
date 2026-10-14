@@ -505,7 +505,7 @@ function OffersContent() {
                           {o.currentPrice.toLocaleString()}
                         </span>
                         <p className="text-xs text-body mt-0.5">
-                          Order created! Connect in Transaction Chat to arrange courier logistics and direct settlement.
+                          Deal locked! Connect in Transaction Chat to arrange meetup, inspection, and payment.
                         </p>
                       </div>
 
@@ -641,7 +641,7 @@ function OffersContent() {
                 }
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-primary px-5 text-xs sm:text-sm font-bold text-white shadow-soft hover:bg-primary-dark"
               >
-                {acceptedNotice.viewerRole === "buyer" ? "Complete Logistics" : "View Order"}
+                {acceptedNotice.viewerRole === "buyer" ? "Complete Order" : "View Order"}
               </Link>
               <button
                 type="button"

@@ -174,14 +174,14 @@ export default async function ProductDetailPage({
           <section className="rounded-3xl border border-line bg-surface p-6 shadow-soft space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary">
-                <Truck className="h-5 w-5" />
+                <MapPin className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-ink">Delivery &amp; Logistics Arrangement</h3>
+                <h3 className="text-sm font-bold text-ink">Pickup &amp; Delivery Arrangement</h3>
                 <p className="text-xs text-muted">
                   {product.delivery?.mode === "seller_included"
-                    ? "Delivery is included in the agreed purchase price and handled by the merchant."
-                    : "Direct Nigerian peer-to-peer delivery arranged after offer acceptance in Transaction Chat."}
+                    ? "Delivery is handled directly by the seller upon deal confirmation."
+                    : "Direct peer-to-peer pickup or delivery arranged directly with the seller in chat."}
                   {product.delivery?.estimatedDays ? ` Expected within ${product.delivery.estimatedDays}.` : ""}
                 </p>
               </div>

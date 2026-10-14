@@ -36,7 +36,7 @@ function getStatusBadge(status: OrderStatus) {
     case "paid":
     case "processing":
       return {
-        label: "Processing / Logistics",
+        label: "Processing",
         className: "bg-primary-soft text-primary border-primary/20",
         icon: Package,
       };
@@ -195,8 +195,8 @@ function OrdersList() {
           </h1>
           <p className="text-xs sm:text-sm text-muted mt-1">
             {tab === "buyer"
-              ? "Track your purchases, courier delivery, and agreed deals"
-              : "Manage incoming customer orders and logistics for your store"}
+              ? "Track your purchases and agreed deals"
+              : "Manage incoming customer orders and fulfillment for your store"}
           </p>
         </div>
 

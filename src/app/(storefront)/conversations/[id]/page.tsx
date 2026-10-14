@@ -184,8 +184,8 @@ export default function ConversationPage() {
               <>
                 <Truck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-ink font-semibold">Logistics & Direct Payment Workspace: </strong>
-                  Use this chat to exchange delivery address, coordinate courier pickup, and arrange cash or bank transfer upon inspection.
+                  <strong className="text-ink font-semibold">Direct Order &amp; Settlement Workspace: </strong>
+                  Use this chat to exchange meetup or delivery address, coordinate timing, and settle payment upon in-person inspection.
                 </div>
               </>
             ) : (

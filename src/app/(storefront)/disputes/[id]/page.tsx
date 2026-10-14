@@ -227,7 +227,7 @@ export default function DisputePage({
           <div>
             <span className="text-xs font-bold uppercase tracking-wider text-danger flex items-center gap-1.5">
               <ShieldAlert className="h-4 w-4" />
-              PriceAm Mediation & Protection Desk
+              PriceAm Safety &amp; Mediation Desk
             </span>
             <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-1">
               Case: {dispute.reason}

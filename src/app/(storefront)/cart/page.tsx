@@ -214,12 +214,12 @@ export default function CartPage() {
           <span className="text-muted">→</span>
           <span className="flex items-center gap-1.5 text-muted">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sunken text-muted text-[11px]">2</span>
-            Logistics & Delivery
+            Delivery &amp; Contact
           </span>
           <span className="text-muted">→</span>
           <span className="flex items-center gap-1.5 text-muted">
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-sunken text-muted text-[11px]">3</span>
-            Settlement
+            Confirmation
           </span>
         </div>
       </div>
@@ -536,13 +536,13 @@ export default function CartPage() {
           <div className="rounded-3xl border border-line bg-sunken/60 p-5 space-y-3 text-xs shadow-soft">
             <div className="flex items-center gap-2 font-bold text-ink">
               <ShieldCheck className="h-4 w-4 text-primary" />
-              <span>Nigerian Marketplace Protection</span>
+              <span>Safe Trading &amp; Meetup Tips</span>
             </div>
             <ul className="space-y-2 text-muted leading-relaxed text-[11px] sm:text-xs">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                 <span>
-                  <strong>Pay on Delivery / Meetup:</strong> Inspect your items in person or settle with the dispatch rider.
+                  <strong>Pay on Delivery / Meetup:</strong> Inspect your items in person before completing payment.
                 </span>
               </li>
               <li className="flex items-start gap-2">
@@ -552,9 +552,9 @@ export default function CartPage() {
                 </span>
               </li>
               <li className="flex items-start gap-2">
-                <Truck className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                 <span>
-                  <strong>Multi-Vendor Dispatch:</strong> Each seller packages and dispatches their items independently.
+                  <strong>Direct Seller Coordination:</strong> Each seller arranges pickup or handoff directly with you.
                 </span>
               </li>
             </ul>

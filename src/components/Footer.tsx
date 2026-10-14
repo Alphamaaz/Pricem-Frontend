@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AtSign, MessageCircle, ShieldCheck, Truck } from "lucide-react";
+import { AtSign, Handshake, MessageCircle, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 
 const COLUMNS = [
@@ -36,12 +36,12 @@ export function Footer() {
       <div className="border-b border-line bg-sunken/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm font-medium text-body">
           <span className="flex items-center gap-2">
-            <ShieldCheck className="h-4.5 w-4.5 text-primary" strokeWidth={1.75} />
-            Buyer protection on every order
+            <Handshake className="h-4.5 w-4.5 text-primary" strokeWidth={1.75} />
+            Direct buyer &amp; seller deals
           </span>
           <span className="flex items-center gap-2">
-            <Truck className="h-4.5 w-4.5 text-primary" strokeWidth={1.75} />
-            Fast, tracked delivery
+            <ShieldCheck className="h-4.5 w-4.5 text-primary" strokeWidth={1.75} />
+            Safe meetups &amp; in-person inspection
           </span>
           <span className="hidden sm:flex items-center gap-2">
             <span className="text-primary font-bold">₦</span>

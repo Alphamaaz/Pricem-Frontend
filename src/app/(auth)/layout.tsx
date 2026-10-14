@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Handshake, ShieldCheck, Sparkles, Truck } from "lucide-react";
+import { CheckCircle2, Handshake, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
 export default function AuthLayout({
@@ -55,11 +55,11 @@ export default function AuthLayout({
 
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sunken text-body border border-line">
-                <Truck className="h-4 w-4 text-primary" />
+                <MessageCircle className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-ink">Nationwide Logistics Coordination</h4>
-                <p className="text-[11px] text-muted">Lagos, Abuja, Port Harcourt, Ibadan, Kano and beyond.</p>
+                <h4 className="text-xs font-bold text-ink">Direct Seller Communication</h4>
+                <p className="text-[11px] text-muted">Connect directly to agree on inspection, meetup, and payment.</p>
               </div>
             </div>
           </div>
@@ -94,7 +94,7 @@ export default function AuthLayout({
 
           {/* Footer note */}
           <p className="mt-6 text-center text-xs text-muted">
-            Protected by PriceAm Safety & Deal Protection.
+            PriceAm — The direct negotiation-first marketplace.
           </p>
         </div>
       </div>

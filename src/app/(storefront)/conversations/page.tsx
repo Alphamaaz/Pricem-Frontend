@@ -89,10 +89,10 @@ export default function ConversationsPage() {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-ink tracking-tight mt-0.5">
-            Messages & Logistics
+            Messages &amp; Orders
           </h1>
           <p className="text-xs sm:text-sm text-muted mt-1">
-            Coordinate courier deliveries, exchange meetup locations, and confirm settlements.
+            Coordinate handoffs, exchange meetup locations, and confirm deal settlements.
           </p>
         </div>
 
@@ -100,7 +100,7 @@ export default function ConversationsPage() {
         <div className="inline-flex rounded-xl border border-line bg-surface p-1 shadow-soft self-start sm:self-auto">
           {[
             { key: "all", label: "All Chats" },
-            { key: "order", label: "Orders & Delivery" },
+            { key: "order", label: "Orders" },
             { key: "inquiry", label: "Product Inquiries" },
           ].map((tab) => (
             <button
