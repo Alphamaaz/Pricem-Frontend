@@ -566,15 +566,30 @@ export function MarketplaceCatalog({
               }
             >
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-3xl border border-line bg-surface p-4 space-y-3 sm:space-y-4 animate-pulse">
-                  <div className={viewMode === "grid" ? "aspect-[4/3] rounded-2xl bg-sunken" : "aspect-[16/10] sm:aspect-[2/1] rounded-2xl bg-sunken"} />
-                  <div className="space-y-2">
-                    <div className="h-4 bg-sunken rounded-md w-3/4" />
-                    <div className="h-3 bg-sunken rounded-md w-1/2" />
-                  </div>
-                  <div className="pt-2 border-t border-line flex justify-between items-center">
-                    <div className="h-5 bg-sunken rounded-md w-24" />
-                    <div className="h-9 bg-sunken rounded-xl w-28" />
+                <div
+                  key={i}
+                  className={`rounded-2xl sm:rounded-3xl border border-line bg-surface p-4 animate-pulse ${
+                    viewMode === "grid"
+                      ? "space-y-3 sm:space-y-4"
+                      : "flex flex-col sm:flex-row gap-4 sm:gap-6"
+                  }`}
+                >
+                  <div
+                    className={
+                      viewMode === "grid"
+                        ? "aspect-[4/3] rounded-2xl bg-sunken"
+                        : "aspect-[16/10] sm:aspect-auto sm:w-64 md:w-72 lg:w-80 shrink-0 rounded-2xl bg-sunken"
+                    }
+                  />
+                  <div className="flex-1 flex flex-col justify-between space-y-3 min-w-0">
+                    <div className="space-y-2">
+                      <div className="h-5 bg-sunken rounded-md w-3/4" />
+                      <div className="h-3.5 bg-sunken rounded-md w-1/2" />
+                    </div>
+                    <div className="pt-2 border-t border-line flex justify-between items-center">
+                      <div className="h-6 bg-sunken rounded-md w-28" />
+                      <div className="h-8 bg-sunken rounded-xl w-24" />
+                    </div>
                   </div>
                 </div>
               ))}
