@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Handshake, Heart, MessageCircle, Package, ShoppingCart } from "lucide-react";
+import { Handshake, Heart, MessageCircle, Package } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { tokenStore } from "@/lib/api";
 import { COMMERCE_CHANGED_EVENT } from "@/lib/commerce-events";
@@ -19,9 +19,8 @@ type IconLink = {
 const ICON_LINKS: IconLink[] = [
   { href: "/conversations", label: "Messages", icon: MessageCircle, countKey: "messages" },
   { href: "/offers", label: "Offers", icon: Handshake, countKey: "offers" },
-  { href: "/orders", label: "Orders", icon: Package, countKey: "orders" },
+  { href: "/orders", label: "Deals", icon: Package, countKey: "orders" },
   { href: "/wishlist", label: "Wishlist", icon: Heart, countKey: "wishlist" },
-  { href: "/cart", label: "Cart", icon: ShoppingCart, countKey: "cart" },
 ];
 
 export function NavbarCommerceLinks() {

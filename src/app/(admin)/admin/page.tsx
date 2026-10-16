@@ -391,7 +391,7 @@ export default function AdminDashboardPage() {
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-success/10 border border-success/20 px-3 py-1 text-xs font-bold text-success">
               <span className="h-2 w-2 rounded-full bg-success animate-pulse" />
-              {analytics?.system.paymentMode === "paystack" ? "Paystack Escrow Mode" : "Direct Settlement / Jiji Mode"}
+              {analytics?.system.paymentMode === "paystack" ? "Paystack Escrow Mode" : "Direct Settlement Mode"}
             </span>
 
             <Button
@@ -703,7 +703,7 @@ export default function AdminDashboardPage() {
 
                 <div className="space-y-3.5 text-xs sm:text-sm">
                   {[
-                    { label: "Awaiting Settlement", key: "pending_payment", count: orders?.byStatus.pending_payment || 0, color: "bg-warning", text: "text-warning" },
+                    { label: "Awaiting fulfilment", key: "pending_payment", count: orders?.byStatus.pending_payment || 0, color: "bg-warning", text: "text-warning" },
                     { label: "Confirmed / In Logistics", key: "processing", count: (orders?.byStatus.paid || 0) + (orders?.byStatus.processing || 0), color: "bg-primary", text: "text-primary" },
                     { label: "Dispatched / In Transit", key: "shipped", count: orders?.byStatus.shipped || 0, color: "bg-accent", text: "text-ink" },
                     { label: "Delivered & Settled", key: "delivered", count: orders?.byStatus.delivered || 0, color: "bg-success", text: "text-success" },
@@ -1390,7 +1390,7 @@ export default function AdminDashboardPage() {
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-xs font-bold text-ink">Order #{order._id.slice(-6).toUpperCase()}</span>
                         <span className="rounded-md bg-sunken px-2 py-0.5 text-[10px] font-bold uppercase text-muted">
-                          {order.orderStatus.replace("_", " ")}
+                          {order.orderStatus === "pending_payment" ? "Awaiting fulfilment" : order.orderStatus.replaceAll("_", " ")}
                         </span>
                       </div>
                       <p className="text-xs text-muted">
@@ -1526,7 +1526,7 @@ export default function AdminDashboardPage() {
                 <div className="rounded-2xl bg-sunken/60 p-4 border border-line space-y-1">
                   <span className="text-[10px] font-bold uppercase text-muted">Settlement Engine</span>
                   <div className="font-extrabold text-ink text-sm">Direct Nigerian Settlement</div>
-                  <p className="text-[11px] text-muted">Jiji.ng peer-to-peer Price Am &amp; logistics flow</p>
+                  <p className="text-[11px] text-muted">Direct peer-to-peer Price Am &amp; inspection flow</p>
                 </div>
                 <div className="rounded-2xl bg-sunken/60 p-4 border border-line space-y-1">
                   <span className="text-[10px] font-bold uppercase text-muted">Standard Platform Commission</span>

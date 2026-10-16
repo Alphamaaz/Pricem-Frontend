@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: "%s · PriceAm",
   },
   description:
-    "PriceAm is a marketplace where every buyer can negotiate and every account can sell. Make an offer, agree on a price, get it delivered.",
+    "Nigeria's negotiation-first marketplace. Find items near you, make a numeric offer, agree on a price, and connect directly with the seller.",
 };
 
 export default function RootLayout({

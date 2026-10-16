@@ -7,7 +7,6 @@ import {
   AlertCircle,
   ArrowUpRight,
   BarChart3,
-  Building2,
   CheckCircle2,
   Copy,
   DollarSign,
@@ -18,7 +17,6 @@ import {
   Plus,
   RefreshCw,
   ShoppingBag,
-  Sparkles,
   Store,
   TrendingUp,
   Truck,
@@ -38,6 +36,7 @@ function SellerDashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeChartTab, setActiveChartTab] = useState<"revenue" | "clicks" | "orders">("revenue");
+  const [orderRange, setOrderRange] = useState<"today" | "7days" | "30days" | "all">("today");
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const loadData = useCallback((isInitial = false) => {
@@ -105,6 +104,16 @@ function SellerDashboardContent() {
     return Math.max(...chartData.map((d) => d.orders), 5);
   }, [chartData, activeChartTab]);
 
+  const visibleOrders = useMemo(() => {
+    const orders = analytics?.recentOrders || [];
+    if (orderRange === "all") return orders;
+    const now = new Date();
+    const start = new Date(now);
+    if (orderRange === "today") start.setHours(0, 0, 0, 0);
+    else start.setDate(start.getDate() - (orderRange === "7days" ? 7 : 30));
+    return orders.filter((order) => new Date(order.createdAt).getTime() >= start.getTime());
+  }, [analytics?.recentOrders, orderRange]);
+
   if (loading && !analytics) {
     return (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-6">
@@ -150,10 +159,6 @@ function SellerDashboardContent() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-success-soft text-success border border-success/30 px-3 py-0.5 text-xs font-bold">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Verified Merchant
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent/20 text-ink border border-accent/30 px-3 py-0.5 text-xs font-extrabold">
-                  <Sparkles className="h-3 w-3 text-primary" />
-                  Price Am Offers Enabled
                 </span>
               </div>
 
@@ -351,10 +356,80 @@ function SellerDashboardContent() {
         </div>
       </div>
 
-      {/* Main Interactive Charts & Traffic Breakdown (TikTok Shop Visual Analytics) */}
-      <div className="grid lg:grid-cols-12 gap-8 items-start">
+      {/* Orders are the seller's primary daily task, so they precede analytics. */}
+      <section className="rounded-3xl border border-line bg-surface p-5 sm:p-7 shadow-soft space-y-5">
+        <div className="flex flex-col gap-4 border-b border-line pb-4 xl:flex-row xl:items-center xl:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-bold text-ink">Customer Orders</h2>
+              <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-[10px] font-extrabold text-primary-darker">
+                {visibleOrders.length} shown
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-muted">Review new deals first, then open an order to coordinate fulfilment.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-xl border border-line bg-sunken/60 p-1" aria-label="Filter orders by date">
+              {[
+                { key: "today", label: "Today" },
+                { key: "7days", label: "Last 7 days" },
+                { key: "30days", label: "Last 30 days" },
+                { key: "all", label: "All" },
+              ].map((range) => (
+                <button
+                  key={range.key}
+                  type="button"
+                  onClick={() => setOrderRange(range.key as typeof orderRange)}
+                  className={`rounded-lg px-3 py-1.5 text-[11px] font-bold transition-colors ${orderRange === range.key ? "bg-surface text-primary shadow-soft" : "text-muted hover:text-ink"}`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+            <Link href="/orders">
+              <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold">View all deals</Button>
+            </Link>
+          </div>
+        </div>
+
+        {visibleOrders.length === 0 ? (
+          <div className="flex min-h-36 flex-col items-center justify-center rounded-2xl bg-sunken/40 px-5 text-center">
+            <ShoppingBag className="h-7 w-7 text-primary/60" />
+            <h3 className="mt-2 text-sm font-bold text-ink">No orders in this period</h3>
+            <p className="mt-1 text-xs text-muted">Choose a wider date range, or share your store link to attract buyers.</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {visibleOrders.map((o) => (
+              <Link key={o._id} href={`/orders/${o._id}`} className="group block rounded-2xl border border-line p-4 transition-all hover:border-primary/40 hover:shadow-soft">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-[11px] font-bold text-muted">#{o._id.slice(-6).toUpperCase()}</span>
+                  <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-extrabold uppercase ${o.orderStatus === "completed" ? "border-success/30 bg-success-soft text-success" : o.orderStatus === "shipped" || o.orderStatus === "delivered" ? "border-accent/30 bg-accent/20 text-ink" : "border-warning/30 bg-warning/15 text-ink"}`}>
+                    {o.orderStatus === "pending_payment" ? "Awaiting fulfilment" : o.orderStatus.replaceAll("_", " ")}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  {o.firstItemImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={assetUrl(o.firstItemImage)} alt={o.firstItemTitle} className="h-12 w-12 shrink-0 rounded-xl border border-line object-cover" />
+                  ) : <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-sunken"><Package className="h-5 w-5 text-muted" /></span>}
+                  <div className="min-w-0"><h3 className="truncate text-sm font-bold text-ink group-hover:text-primary">{o.firstItemTitle}</h3><p className="truncate text-[11px] text-muted">{o.recipientName} · {o.destinationCity}</p></div>
+                </div>
+                <div className="mt-3 flex items-end justify-between border-t border-line/60 pt-3">
+                  <div><span className="block text-[10px] font-bold uppercase text-muted">Deal total</span><strong className="text-base text-ink">₦{o.total.toLocaleString()}</strong></div>
+                  <span className="text-[11px] font-bold text-primary">Open order →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Main Interactive Charts & Traffic Breakdown */}
+      <div className="grid gap-8 lg:grid-cols-12 lg:items-stretch">
         {/* Left: Interactive Revenue & Traffic Chart (8 cols) */}
-        <section className="lg:col-span-8 rounded-3xl border border-line bg-surface p-6 sm:p-7 shadow-soft space-y-6">
+        <section className="flex h-full flex-col rounded-3xl border border-line bg-surface p-6 shadow-soft sm:p-7 lg:col-span-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-5">
             <div>
               <div className="flex items-center gap-2">
@@ -392,8 +467,8 @@ function SellerDashboardContent() {
           </div>
 
           {/* Dynamic SVG / HTML Bar Chart */}
-          <div className="pt-2">
-            <div className="h-64 sm:h-72 w-full flex items-end gap-2 sm:gap-4 px-2 pt-6 pb-2 border-b border-line/60 relative">
+          <div className="flex flex-1 flex-col pt-6">
+            <div className="min-h-64 flex-1 sm:min-h-72 w-full flex items-end gap-2 sm:gap-4 px-2 pt-6 pb-2 border-b border-line/60 relative">
               {/* Background Guideline grids */}
               <div className="absolute inset-x-0 top-6 border-b border-dashed border-line/40 text-[10px] text-muted/60 pl-1 select-none">
                 {activeChartTab === "revenue"
@@ -478,7 +553,7 @@ function SellerDashboardContent() {
         </section>
 
         {/* Right: Store Operations & Direct Deals Hub (4 cols) */}
-        <section className="lg:col-span-4 rounded-3xl border border-line bg-surface p-6 sm:p-7 shadow-soft space-y-6">
+        <section className="h-full rounded-3xl border border-line bg-surface p-6 shadow-soft sm:p-7 lg:col-span-4 space-y-6">
           <div className="flex items-center gap-2 border-b border-line pb-4">
             <Store className="h-5 w-5 text-primary" />
             <h2 className="text-base font-bold text-ink">
@@ -655,7 +730,7 @@ function SellerDashboardContent() {
       </section>
 
       {/* Recent Orders Stream (TikTok Shop Fulfilment Feed) */}
-      <section className="rounded-3xl border border-line bg-surface p-6 sm:p-7 shadow-soft space-y-6">
+      <section className="hidden" aria-hidden="true">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-line pb-4">
           <div>
             <div className="flex items-center gap-2">
@@ -706,7 +781,7 @@ function SellerDashboardContent() {
                           : "bg-warning/15 text-ink border-warning/30"
                       }`}
                     >
-                      {o.orderStatus.replace("_", " ")}
+                      {o.orderStatus === "pending_payment" ? "Awaiting fulfilment" : o.orderStatus.replaceAll("_", " ")}
                     </span>
                   </div>
 

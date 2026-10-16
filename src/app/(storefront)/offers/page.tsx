@@ -37,6 +37,7 @@ import type { User } from "@/lib/types";
 import type { Order } from "@/lib/orders";
 import { getRealtimeSocket } from "@/lib/realtime";
 import { getOrderConversation } from "@/lib/chat";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 const OPEN_STATUSES = ["pending", "countered"];
 
@@ -510,7 +511,7 @@ function OffersContent() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {tab === "buyer" && (
+                        {tab === "buyer" && PAYMENTS_ENABLED && (
                           <Link href={`/checkout?order=${o.order}`}>
                             <Button
                               size="sm"
@@ -635,13 +636,13 @@ function OffersContent() {
             <div className="grid gap-2 sm:grid-cols-2">
               <Link
                 href={
-                  acceptedNotice.viewerRole === "buyer"
+                  acceptedNotice.viewerRole === "buyer" && PAYMENTS_ENABLED
                     ? `/checkout?order=${acceptedNotice.orderId}`
                     : `/orders/${acceptedNotice.orderId}`
                 }
                 className="inline-flex h-11 items-center justify-center rounded-2xl bg-primary px-5 text-xs sm:text-sm font-bold text-white shadow-soft hover:bg-primary-dark"
               >
-                {acceptedNotice.viewerRole === "buyer" ? "Complete Order" : "View Order"}
+                {acceptedNotice.viewerRole === "buyer" && PAYMENTS_ENABLED ? "Complete Order" : "View Order"}
               </Link>
               <button
                 type="button"

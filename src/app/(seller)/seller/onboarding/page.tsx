@@ -198,7 +198,7 @@ export default function SellerOnboardingPage() {
               Launch your store & start selling right away.
             </h2>
             <p className="text-xs sm:text-sm text-body mt-2 leading-relaxed">
-              No waiting for manual approvals. Post your items instantly (just like Jiji), receive automated Price Am offers, and get paid with zero upfront fees.
+              No waiting for manual approvals. Post your items instantly, receive automated Price Am offers, and sell with zero upfront fees.
             </p>
           </div>
 

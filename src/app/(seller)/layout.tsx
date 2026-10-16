@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
+import { SellerWorkspaceNav } from "@/components/SellerWorkspaceNav";
 
 export default function SellerLayout({
   children,
@@ -7,10 +7,12 @@ export default function SellerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="min-h-screen bg-cream">
       <Navbar />
-      {children}
-      <Footer />
-    </>
+      <div className="seller-shell">
+        <SellerWorkspaceNav />
+        <div className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</div>
+      </div>
+    </div>
   );
 }

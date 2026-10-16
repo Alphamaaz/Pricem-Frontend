@@ -349,7 +349,7 @@ export default function NewProductPage() {
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted">Need help?</span>
             <span className="rounded-lg bg-sunken px-2.5 py-1 text-xs font-semibold text-ink border border-line">
-              Jiji-Style Direct Settlement
+              Direct Peer-to-Peer Settlement
             </span>
           </div>
         </div>
@@ -633,7 +633,7 @@ export default function NewProductPage() {
             </div>
           </section>
 
-          {/* Section 3: Location & Inspection Hub (Jiji-style) */}
+          {/* Section 3: Location & Inspection Hub */}
           <section className="rounded-3xl bg-surface border border-line shadow-soft p-6 sm:p-7 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -923,7 +923,7 @@ export default function NewProductPage() {
                   onChange={(e) => setDeliveryMode(e.target.value as "buyer_pays_externally" | "seller_included")}
                   className="w-full h-11 rounded-xl border border-line bg-surface px-4 text-sm text-ink focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary"
                 >
-                  <option value="buyer_pays_externally">Buyer pays courier separately (Jiji style)</option>
+                  <option value="buyer_pays_externally">Buyer pays courier separately</option>
                   <option value="seller_included">Seller includes delivery in listing price</option>
                 </select>
               </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AtSign, Handshake, MessageCircle, ShieldCheck } from "lucide-react";
+import { Handshake, ShieldCheck } from "lucide-react";
 import { Logo } from "./Logo";
 
 const COLUMNS = [
@@ -15,7 +15,7 @@ const COLUMNS = [
     title: "Sell on PriceAm",
     links: [
       { href: "/seller/onboarding", label: "Become a seller" },
-      { href: "/seller/products", label: "Seller dashboard" },
+      { href: "/seller", label: "Seller dashboard" },
       { href: "/seller/products/new", label: "List an item" },
     ],
   },
@@ -57,16 +57,6 @@ export function Footer() {
             The marketplace where every price is negotiable and every account
             can sell. Make an offer, get a counter, close the deal.
           </p>
-          <div className="mt-5 flex items-center gap-3">
-            {[AtSign, MessageCircle].map((Icon, i) => (
-              <span
-                key={i}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-muted hover:text-primary hover:border-primary transition-colors cursor-pointer"
-              >
-                <Icon className="h-4 w-4" strokeWidth={1.75} />
-              </span>
-            ))}
-          </div>
         </div>
 
         {COLUMNS.map((col) => (

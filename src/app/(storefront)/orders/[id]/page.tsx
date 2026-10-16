@@ -43,11 +43,12 @@ import { Alert, Button, Input, Label } from "@/components/ui";
 import { notifyCommerceChanged } from "@/lib/commerce-events";
 import { openDispute } from "@/lib/disputes";
 import { OrderReviewSection } from "@/components/OrderReviewSection";
+import { PAYMENTS_ENABLED } from "@/lib/features";
 
 function getStatusBadge(status: OrderStatus) {
   switch (status) {
     case "pending_payment":
-      return { label: "Awaiting Settlement", className: "bg-warning/15 text-ink border-warning/30", icon: Clock };
+      return { label: "Awaiting fulfilment", className: "bg-warning/15 text-ink border-warning/30", icon: Clock };
     case "paid":
     case "processing":
       return { label: "Processing", className: "bg-primary-soft text-primary border-primary/20", icon: Package };
@@ -662,7 +663,11 @@ export default function OrderDetailPage({
           )}
 
           {/* Primary Action Buttons Card */}
-          <section className="rounded-3xl border border-line bg-surface p-6 shadow-soft space-y-3">
+          {(
+            (order.orderStatus === "delivered" && (isBuyer || isSeller)) ||
+            (isSeller && ["paid", "shipped"].includes(order.orderStatus)) ||
+            (PAYMENTS_ENABLED && isBuyer && order.orderStatus === "pending_payment" && order.paymentStatus === "pending" && order.source !== "offer")
+          ) && <section className="rounded-3xl border border-line bg-surface p-6 shadow-soft space-y-3">
             <h2 className="text-sm font-bold text-ink mb-2">Order Actions</h2>
 
             {/* Buyer Delivery Confirmation */}
@@ -744,22 +749,8 @@ export default function OrderDetailPage({
               </div>
             )}
 
-            {/* Open Workspace Action */}
-            <Button
-              variant="outline"
-              size="md"
-              full
-              loading={busy === "chat"}
-              disabled={busy !== null}
-              onClick={openOrderWorkspace}
-              className="rounded-xl"
-            >
-              <MessageCircle className="h-4 w-4 text-primary" />
-              Open Transaction Chat
-            </Button>
-
             {/* Fallback demo payment if needed */}
-            {isBuyer && order.orderStatus === "pending_payment" && order.paymentStatus === "pending" && order.source !== "offer" && (
+            {PAYMENTS_ENABLED && isBuyer && order.orderStatus === "pending_payment" && order.paymentStatus === "pending" && order.source !== "offer" && (
               <Button
                 size="md"
                 full
@@ -772,7 +763,7 @@ export default function OrderDetailPage({
                 Complete Payment
               </Button>
             )}
-          </section>
+          </section>}
 
           {/* Safety & Direct Settlement Notice */}
           <section className="rounded-3xl border border-line bg-sunken/60 p-5 space-y-2 text-xs text-body">

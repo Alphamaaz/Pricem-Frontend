@@ -86,19 +86,15 @@ export function MarketplaceCatalog({
   const [inStockOnly, setInStockOnly] = useState(false);
   const [negotiableOnly, setNegotiableOnly] = useState(false);
   const [sort, setSort] = useState<ProductSort>("featured");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
-  // Sync viewMode with localStorage
-  useEffect(() => {
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    if (typeof window === "undefined") return "grid";
     try {
       const saved = localStorage.getItem("priceam_view_mode");
-      if (saved === "grid" || saved === "list") {
-        setViewMode(saved);
-      }
+      return saved === "grid" || saved === "list" ? saved : "grid";
     } catch {
-      // ignore SSR / storage restrictions
+      return "grid";
     }
-  }, []);
+  });
 
   const handleSetViewMode = (mode: "grid" | "list") => {
     setViewMode(mode);

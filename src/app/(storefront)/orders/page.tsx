@@ -29,7 +29,7 @@ function getStatusBadge(status: OrderStatus) {
   switch (status) {
     case "pending_payment":
       return {
-        label: "Awaiting Settlement",
+        label: "Awaiting fulfilment",
         className: "bg-warning/15 text-ink border-warning/30",
         icon: Clock,
       };
