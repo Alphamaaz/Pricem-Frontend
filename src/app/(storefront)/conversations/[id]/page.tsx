@@ -39,11 +39,25 @@ export default function ConversationPage() {
   const [sending, setSending] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [showSafety, setShowSafety] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const safetyRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
   };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (safetyRef.current && !safetyRef.current.contains(event.target as Node)) {
+        setShowSafety(false);
+      }
+    }
+    if (showSafety) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showSafety]);
 
   useEffect(() => {
     if (!tokenStore.get()) {
@@ -141,20 +155,6 @@ export default function ConversationPage() {
   const isOpen = conversation.status === "open";
   const isBuyer = conversation.buyer === currentUserId;
 
-  const [showSafety, setShowSafety] = useState(false);
-  const safetyRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (safetyRef.current && !safetyRef.current.contains(event.target as Node)) {
-        setShowSafety(false);
-      }
-    }
-    if (showSafety) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [showSafety]);
 
   return (
     <div className="mx-auto max-w-3xl">
