@@ -18,7 +18,7 @@ export default async function HomePage() {
               Find it. <span className="text-primary">Price Am.</span> Make the deal.
             </h1>
             <p className="mt-1.5 max-w-2xl text-xs leading-5 text-body sm:text-sm">
-              Browse nearby listings, send a numeric offer and connect after you agree. Platform payments are coming soon.
+              Browse nearby listings, send a numeric offer and connect after you agree.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
