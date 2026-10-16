@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
-  CreditCard,
   MapPin,
   Phone,
   Send,
@@ -40,6 +39,11 @@ export default function ConversationPage() {
   const [sending, setSending] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  };
 
   useEffect(() => {
     if (!tokenStore.get()) {
@@ -59,6 +63,12 @@ export default function ConversationPage() {
       })
       .finally(() => setLoading(false));
   }, [params.id, router]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom(messages.length <= 1 ? "auto" : "smooth");
+    }
+  }, [messages.length]);
 
   useEffect(() => {
     if (!conversation || conversation.status !== "open") return;
@@ -86,19 +96,31 @@ export default function ConversationPage() {
     }
   }
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!text.trim()) return;
+  async function handleSendMessage() {
+    const trimmed = text.trim();
+    if (!trimmed || sending) return;
     setError(null);
     setSending(true);
     try {
-      const response = await sendMessage(params.id, text.trim());
+      const response = await sendMessage(params.id, trimmed);
       setMessages((current) => [...current, response.chatMessage]);
       setText("");
     } catch (requestError) {
       setError(requestError instanceof ApiRequestError ? requestError.message : "Message could not be sent.");
     } finally {
       setSending(false);
+    }
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await handleSendMessage();
+  }
+
+  function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      void handleSendMessage();
     }
   }
 
@@ -133,9 +155,9 @@ export default function ConversationPage() {
         </span>
       </div>
 
-      <section className="overflow-hidden rounded-3xl border border-line bg-surface shadow-soft">
+      <section className="flex flex-col h-[calc(100dvh-9.5rem)] sm:h-[calc(100dvh-10.5rem)] min-h-[480px] max-h-[780px] overflow-hidden rounded-3xl border border-line bg-surface shadow-soft">
         {/* Workspace Banner */}
-        <header className="border-b border-line bg-gradient-to-r from-surface via-cream/50 to-primary-soft/30 p-5">
+        <header className="shrink-0 border-b border-line bg-gradient-to-r from-surface via-cream/50 to-primary-soft/30 p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               {product?.coverImage?.url && (
@@ -143,7 +165,7 @@ export default function ConversationPage() {
                 <img
                   src={assetUrl(product.coverImage.url)}
                   alt={product.title}
-                  className="h-14 w-14 rounded-2xl border border-line object-cover shrink-0"
+                  className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl border border-line object-cover shrink-0"
                 />
               )}
               <div>
@@ -162,16 +184,16 @@ export default function ConversationPage() {
                     </span>
                   )}
                 </div>
-                <h1 className="mt-1 text-base sm:text-lg font-bold text-ink truncate max-w-md">
+                <h1 className="mt-1 text-sm sm:text-base font-bold text-ink truncate max-w-md">
                   {product?.title ?? "Order Workspace"}
                 </h1>
               </div>
             </div>
           </div>
 
-          {/* Prominent Platform Safety Warning */}
-          <div className="mt-3 rounded-2xl bg-warning/15 border border-warning/40 p-3 text-xs text-ink leading-relaxed flex items-start gap-2.5">
-            <ShieldAlert className="h-4.5 w-4.5 text-warning shrink-0 mt-0.5" />
+          {/* Platform Safety Warning */}
+          <div className="mt-2.5 rounded-xl bg-warning/15 border border-warning/40 px-3 py-2 text-xs text-ink leading-relaxed flex items-start gap-2">
+            <ShieldAlert className="h-4 w-4 text-warning shrink-0 mt-0.5" />
             <div>
               <strong className="font-bold text-ink">Safety Warning: </strong>
               Never send money in advance! Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent users immediately.
@@ -179,13 +201,13 @@ export default function ConversationPage() {
           </div>
 
           {/* Contextual instruction */}
-          <div className="mt-2.5 rounded-2xl bg-surface/90 border border-line p-3 text-xs text-body leading-relaxed flex items-start gap-2">
+          <div className="mt-2 rounded-xl bg-surface/90 border border-line px-3 py-2 text-xs text-body leading-relaxed flex items-start gap-2">
             {isOrderWorkspace ? (
               <>
                 <Truck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-ink font-semibold">Direct Order &amp; Settlement Workspace: </strong>
-                  Use this chat to exchange meetup or delivery address, coordinate timing, and settle payment upon in-person inspection.
+                  <strong className="text-ink font-semibold">Direct Order Workspace: </strong>
+                  Use this chat to exchange meetup or delivery address, coordinate timing, and settle upon in-person inspection.
                 </div>
               </>
             ) : (
@@ -201,7 +223,7 @@ export default function ConversationPage() {
         </header>
 
         {/* Message Thread */}
-        <div className="min-h-96 max-h-[600px] overflow-y-auto space-y-3 bg-sunken/40 px-4 py-5 sm:px-6">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 bg-sunken/40 px-4 py-4 sm:px-6">
           {nextCursor && (
             <Button
               type="button"
@@ -253,15 +275,16 @@ export default function ConversationPage() {
               </div>
             );
           })}
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Input & Quick Chips */}
-        <div className="border-t border-line bg-surface p-4">
-          {error && <div className="mb-3"><Alert kind="error">{error}</Alert></div>}
+        <div className="shrink-0 border-t border-line bg-surface p-3 sm:p-4">
+          {error && <div className="mb-2"><Alert kind="error">{error}</Alert></div>}
 
-          {/* Quick logistics & payment prompt chips in order workspace */}
+          {/* Quick logistics prompt chips in order workspace */}
           {isOpen && isOrderWorkspace && (
-            <div className="mb-3 flex flex-wrap gap-1.5">
+            <div className="mb-2.5 flex flex-wrap gap-1.5">
               <button
                 type="button"
                 onClick={() => insertQuickPrompt("Here is my delivery address: ")}
@@ -276,29 +299,23 @@ export default function ConversationPage() {
               >
                 <Phone className="h-3 w-3 text-success" /> Share phone
               </button>
-              <button
-                type="button"
-                onClick={() => insertQuickPrompt("Please send your bank account details for payment on delivery: ")}
-                className="inline-flex items-center gap-1 rounded-full border border-line bg-sunken px-3 py-1 text-xs font-medium text-body hover:border-primary hover:text-primary transition-colors"
-              >
-                <CreditCard className="h-3 w-3 text-accent" /> Payment details
-              </button>
             </div>
           )}
 
           {isOpen ? (
-            <form onSubmit={onSubmit} className="flex items-end gap-2">
+            <form onSubmit={onSubmit} className="flex items-center gap-2">
               <textarea
                 value={text}
                 onChange={(event) => setText(event.target.value)}
+                onKeyDown={onKeyDown}
                 maxLength={1500}
-                rows={2}
+                rows={1}
                 placeholder={
                   isOrderWorkspace
-                    ? "Arrange courier delivery, meetup location, or payment..."
-                    : "Ask about item condition, warranty, or delivery..."
+                    ? "Arrange courier delivery, meetup location... (Enter to send)"
+                    : "Ask about item condition, warranty... (Enter to send)"
                 }
-                className="min-h-12 flex-1 resize-none rounded-2xl border border-line bg-sunken/60 px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary transition-shadow"
+                className="min-h-[48px] max-h-32 flex-1 resize-none rounded-2xl border border-line bg-sunken/60 px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary transition-shadow leading-normal"
               />
               <button
                 type="submit"
