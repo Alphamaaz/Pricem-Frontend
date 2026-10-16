@@ -438,19 +438,29 @@ export function BuyBox({ product }: { product: Product }) {
                 Quick Discount Presets
               </label>
               <div className="grid grid-cols-4 gap-2">
-                {[5, 10, 15, 20].map((pct) => (
-                  <button
-                    key={pct}
-                    type="button"
-                    onClick={() => applyPresetDiscount(pct)}
-                    className="flex flex-col items-center justify-center rounded-xl border border-line bg-surface py-2 text-xs hover:border-primary hover:bg-primary-soft/30 transition-all font-semibold text-ink"
-                  >
-                    <span className="text-[10px] text-primary flex items-center gap-0.5">
-                      <TrendingDown className="h-3 w-3" /> -{pct}%
-                    </span>
-                    <span>₦{(Math.round(displayPrice * (1 - pct / 100)) / 1000).toFixed(0)}k</span>
-                  </button>
-                ))}
+                {[5, 10, 15, 20].map((pct) => {
+                  const calculatedPrice = Math.round(displayPrice * (1 - pct / 100));
+                  const isSelected = Number(offerPrice) === calculatedPrice;
+                  return (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() => applyPresetDiscount(pct)}
+                      className={`flex flex-col items-center justify-center rounded-xl border py-2 px-1 text-xs transition-all ${
+                        isSelected
+                          ? "border-primary bg-primary/10 text-primary shadow-xs ring-2 ring-primary/20 font-bold"
+                          : "border-line bg-surface hover:border-primary/50 hover:bg-primary-soft/20 text-ink font-semibold"
+                      }`}
+                    >
+                      <span className="text-[10px] text-primary flex items-center gap-0.5 font-bold">
+                        <TrendingDown className="h-3 w-3" /> -{pct}%
+                      </span>
+                      <span className="text-[11px] sm:text-xs font-black tracking-tight mt-0.5 truncate max-w-full">
+                        ₦{calculatedPrice.toLocaleString()}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
