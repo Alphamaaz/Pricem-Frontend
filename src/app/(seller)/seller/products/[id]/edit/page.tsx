@@ -45,8 +45,12 @@ export default function EditProductPage({
           return;
         }
         setProduct(p);
-        setRetainedMediaUrls((p.media ?? []).map((item) => item.url));
-        setRetainedImageUrls((p.images ?? []).map((item) => item.url));
+        const mediaList = p.media?.length
+          ? p.media
+          : (p.images ?? []).map((img) => ({ ...img, type: "image" as const }));
+        const uniqueUrls = Array.from(new Set(mediaList.map((item) => item.url)));
+        setRetainedMediaUrls(uniqueUrls);
+        setRetainedImageUrls(uniqueUrls);
       })
       .catch((err) => {
         if (err instanceof ApiRequestError && err.status === 403) {
@@ -129,16 +133,24 @@ export default function EditProductPage({
   }
 
   const hasVariants = product.variants.length > 0;
-  const existingMediaCount = retainedMediaUrls.length + retainedImageUrls.length;
-  const remainingMediaSlots = Math.max(0, 7 - existingMediaCount);
-  const visibleMedia = [
-    ...(product.media ?? [])
-      .filter((item) => retainedMediaUrls.includes(item.url))
-      .map((item) => ({ ...item, source: "media" as const })),
-    ...(product.images ?? [])
-      .filter((item) => retainedImageUrls.includes(item.url))
-      .map((item) => ({ ...item, type: "image" as const, source: "images" as const })),
+  
+  // Deduplicate gallery items by URL
+  const allGalleryItems = [
+    ...(product.media ?? []).map((item) => ({ ...item, source: "media" as const })),
+    ...(product.images ?? []).map((item) => ({ ...item, type: "image" as const, source: "images" as const })),
   ];
+  const seenGalleryUrls = new Set<string>();
+  const uniqueGalleryItems = allGalleryItems.filter((item) => {
+    if (seenGalleryUrls.has(item.url)) return false;
+    seenGalleryUrls.add(item.url);
+    return true;
+  });
+
+  const visibleMedia = uniqueGalleryItems.filter((item) =>
+    retainedMediaUrls.includes(item.url)
+  );
+  const existingMediaCount = visibleMedia.length;
+  const remainingMediaSlots = Math.max(0, 7 - existingMediaCount);
 
   return (
     <main className="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-8">
@@ -224,11 +236,8 @@ export default function EditProductPage({
                       aria-label={`Remove ${item.type}`}
                       title={`Remove ${item.type}`}
                       onClick={() => {
-                        if (item.source === "media") {
-                          setRetainedMediaUrls((urls) => urls.filter((url) => url !== item.url));
-                        } else {
-                          setRetainedImageUrls((urls) => urls.filter((url) => url !== item.url));
-                        }
+                        setRetainedMediaUrls((urls) => urls.filter((url) => url !== item.url));
+                        setRetainedImageUrls((urls) => urls.filter((url) => url !== item.url));
                       }}
                       className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-black/75 text-white shadow-sm transition hover:bg-danger focus:outline-none focus:ring-2 focus:ring-white"
                     >
