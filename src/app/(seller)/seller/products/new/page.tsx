@@ -12,6 +12,7 @@ import {
   Info,
   MapPin,
   Package,
+  Play,
   Plus,
   ShieldCheck,
   Sparkles,
@@ -47,7 +48,8 @@ type VariantDraft = {
 };
 
 const imageTypes = "image/jpeg,image/png,image/webp,image/gif";
-const mediaTypes = `${imageTypes},video/mp4`;
+const videoTypes = "video/mp4";
+const mediaTypes = `${imageTypes},${videoTypes}`;
 const maxFileSize = 15 * 1024 * 1024;
 const maxProductMedia = 8;
 const maxGalleryMedia = maxProductMedia - 1;
@@ -71,9 +73,11 @@ function newVariant(): VariantDraft {
 export default function NewProductPage() {
   const router = useRouter();
   const coverInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const previewUrls = useRef(new Set<string>());
 
+  const [activeMediaTab, setActiveMediaTab] = useState<"all" | "photos" | "video">("all");
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -97,13 +101,14 @@ export default function NewProductPage() {
   const [addressNote, setAddressNote] = useState("");
   const [contactPhone, setContactPhone] = useState("");
 
-  // Delivery
+  // Delivery (Arranged directly in chat)
   const [deliveryMode, setDeliveryMode] = useState<"buyer_pays_externally" | "seller_included">("buyer_pays_externally");
   const [estimatedDeliveryDays, setEstimatedDeliveryDays] = useState("1 - 3 Business Days");
   const [deliveryDetails, setDeliveryDetails] = useState("");
 
   // Media
   const [cover, setCover] = useState<LocalImage | null>(null);
+  const [video, setVideo] = useState<LocalImage | null>(null);
   const [gallery, setGallery] = useState<LocalImage[]>([]);
   const [variants, setVariants] = useState<VariantDraft[]>([]);
 
@@ -142,10 +147,50 @@ export default function NewProductPage() {
     event.target.value = "";
   }
 
+  async function onVideoChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > maxFileSize) {
+      setError(`'${file.name}' is larger than 15 MB.`);
+      event.target.value = "";
+      return;
+    }
+    if (file.type !== "video/mp4") {
+      setError("Video must be in MP4 format.");
+      event.target.value = "";
+      return;
+    }
+    const duration = await new Promise<number>((resolve) => {
+      const vid = document.createElement("video");
+      const url = URL.createObjectURL(file);
+      vid.preload = "metadata";
+      vid.onloadedmetadata = () => { resolve(vid.duration); URL.revokeObjectURL(url); };
+      vid.onerror = () => { resolve(Number.POSITIVE_INFINITY); URL.revokeObjectURL(url); };
+      vid.src = url;
+    });
+    if (!Number.isFinite(duration) || duration > 20.05) {
+      setError(`'${file.name}' must be a valid MP4 video no longer than 20 seconds.`);
+      event.target.value = "";
+      return;
+    }
+    setVideo((current) => {
+      if (current) releaseImage(current);
+      return makeLocalImage(file);
+    });
+    event.target.value = "";
+  }
+
+  function removeVideo() {
+    setVideo((current) => {
+      if (current) releaseImage(current);
+      return null;
+    });
+  }
+
   async function onGalleryChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
     if (!selectedFiles.length) return;
-    const remainingSlots = maxGalleryMedia - gallery.length;
+    const remainingSlots = maxGalleryMedia - gallery.length - (video ? 1 : 0);
     if (remainingSlots <= 0) {
       setError(`A listing can have at most ${maxProductMedia} media files including the cover.`);
       event.target.value = "";
@@ -156,20 +201,6 @@ export default function NewProductPage() {
       if (file.size > maxFileSize) {
         setError(`'${file.name}' is larger than 15 MB.`);
         continue;
-      }
-      if (file.type === "video/mp4") {
-        const duration = await new Promise<number>((resolve) => {
-          const video = document.createElement("video");
-          const url = URL.createObjectURL(file);
-          video.preload = "metadata";
-          video.onloadedmetadata = () => { resolve(video.duration); URL.revokeObjectURL(url); };
-          video.onerror = () => { resolve(Number.POSITIVE_INFINITY); URL.revokeObjectURL(url); };
-          video.src = url;
-        });
-        if (!Number.isFinite(duration) || duration > 20.05) {
-          setError(`'${file.name}' must be a valid MP4 video no longer than 20 seconds.`);
-          continue;
-        }
       }
       if (accepted.length < remainingSlots) accepted.push(file);
     }
@@ -273,7 +304,14 @@ export default function NewProductPage() {
     setSubmitting(true);
     const form = new FormData(event.currentTarget);
     form.append("coverImage", cover.file);
+    // Append video first in media so it is at the top of media list on product page
+    if (video) {
+      form.append("media", video.file);
+    }
     gallery.forEach((item) => form.append("media", item.file));
+
+    // Default delivery mode to buyer_pays_externally as delivery is negotiated directly in chat
+    form.set("deliveryMode", "buyer_pays_externally");
 
     // Append extra Nigerian marketplace metadata
     form.set("brand", brand);
@@ -366,7 +404,7 @@ export default function NewProductPage() {
 
           {/* Section 1: Photos & Media Studio */}
           <section className="rounded-3xl bg-surface border border-line shadow-soft p-6 sm:p-7 space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Camera className="h-5 w-5" />
@@ -378,81 +416,216 @@ export default function NewProductPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Showcase Tab Navigation */}
+              <div className="flex items-center gap-1.5 rounded-2xl bg-sunken p-1 border border-line self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab("all")}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                    activeMediaTab === "all"
+                      ? "bg-surface text-ink shadow-xs"
+                      : "text-muted hover:text-ink"
+                  }`}
+                >
+                  All Media ({(cover ? 1 : 0) + (video ? 1 : 0) + gallery.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab("photos")}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                    activeMediaTab === "photos"
+                      ? "bg-surface text-ink shadow-xs"
+                      : "text-muted hover:text-ink"
+                  }`}
+                >
+                  <Camera className="h-3 w-3" />
+                  Photos ({(cover ? 1 : 0) + gallery.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab("video")}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    activeMediaTab === "video"
+                      ? "bg-surface text-primary shadow-xs"
+                      : "text-muted hover:text-ink"
+                  }`}
+                >
+                  <Video className="h-3 w-3" />
+                  <span>Video</span>
+                  {video ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  ) : (
+                    <span className="text-[10px] text-muted font-normal">(0/1)</span>
+                  )}
+                </button>
+              </div>
             </div>
 
+            {/* Hidden File Inputs */}
             <input ref={coverInputRef} type="file" accept={imageTypes} className="sr-only" onChange={onCoverChange} />
-            <input ref={galleryInputRef} type="file" accept={mediaTypes} multiple className="sr-only" onChange={onGalleryChange} />
+            <input ref={videoInputRef} type="file" accept={videoTypes} className="sr-only" onChange={onVideoChange} />
+            <input ref={galleryInputRef} type="file" accept={imageTypes} multiple className="sr-only" onChange={onGalleryChange} />
 
-            <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-              {/* Cover Photo Slot */}
-              <div className="relative aspect-square overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-primary-soft/20 flex flex-col items-center justify-center">
-                {cover ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={cover.previewUrl} alt="Selected cover" className="h-full w-full object-cover" />
-                    <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-soft">
-                      Cover
-                    </span>
+            {/* Dedicated Video Tab View */}
+            {activeMediaTab === "video" && (
+              <div className="pt-2">
+                {video ? (
+                  <div className="rounded-2xl border border-line bg-sunken p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+                          <Video className="h-4 w-4" />
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-ink">Video Showcase Ready</div>
+                          <div className="text-[11px] text-muted">Shown at the top of media list on product page</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => videoInputRef.current?.click()}
+                          className="h-8 text-xs rounded-xl"
+                        >
+                          Replace Video
+                        </Button>
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="flex h-8 w-8 items-center justify-center rounded-xl border border-line bg-surface text-muted hover:text-danger hover:border-danger transition-colors"
+                          aria-label="Remove video"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="relative aspect-video max-w-md mx-auto overflow-hidden rounded-xl bg-black border border-line">
+                      <video src={video.previewUrl} controls playsInline className="h-full w-full object-contain" />
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => videoInputRef.current?.click()}
+                    className="cursor-pointer rounded-2xl border-2 border-dashed border-primary/40 bg-primary-soft/10 p-8 text-center hover:bg-primary-soft/20 transition-all flex flex-col items-center justify-center gap-3"
+                  >
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                      <Video className="h-7 w-7" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-ink">Upload Product Video Showcase</h3>
+                      <p className="text-xs text-muted mt-1 max-w-sm mx-auto">
+                        MP4 video up to 20 seconds (max 15 MB). This video appears at the top of the media list when buyers open your product!
+                      </p>
+                    </div>
+                    <Button type="button" size="sm" className="rounded-xl mt-1">
+                      Choose Video (MP4)
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* All Media & Photos Grid View */}
+            {activeMediaTab !== "video" && (
+              <div className="pt-2 grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+                {/* 1. Cover Photo Slot */}
+                <div className="relative aspect-square overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-primary-soft/20 flex flex-col items-center justify-center">
+                  {cover ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={cover.previewUrl} alt="Selected cover" className="h-full w-full object-cover" />
+                      <span className="absolute left-2.5 top-2.5 rounded-full bg-primary px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-soft">
+                        Cover
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => { releaseImage(cover); setCover(null); }}
+                        className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft hover:text-danger hover:bg-white transition-colors"
+                        aria-label="Remove cover photo"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </>
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => { releaseImage(cover); setCover(null); }}
+                      onClick={() => coverInputRef.current?.click()}
+                      className="flex h-full w-full flex-col items-center justify-center gap-2 p-3 text-primary hover:bg-primary-soft/40 transition-colors"
+                    >
+                      <ImagePlus className="h-7 w-7" />
+                      <span className="text-xs font-bold text-center leading-tight">Add Cover Photo</span>
+                      <span className="text-[10px] text-muted">Primary display</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* 2. Dedicated Video Tab/Card (Visible in All Media view) */}
+                {activeMediaTab === "all" && (
+                  <div className="relative aspect-square overflow-hidden rounded-2xl border-2 border-dashed border-primary/30 bg-primary-soft/10 flex flex-col items-center justify-center">
+                    {video ? (
+                      <>
+                        <video src={video.previewUrl} className="h-full w-full object-cover" muted playsInline />
+                        <span className="absolute left-2.5 top-2.5 rounded-full bg-black/85 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white flex items-center gap-1 border border-white/20">
+                          <Video className="h-3 w-3 text-primary" /> Video
+                        </span>
+                        <button
+                          type="button"
+                          onClick={removeVideo}
+                          className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft hover:text-danger hover:bg-white transition-colors"
+                          aria-label="Remove video"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => videoInputRef.current?.click()}
+                        className="flex h-full w-full flex-col items-center justify-center gap-1.5 p-3 text-primary hover:bg-primary-soft/30 transition-colors"
+                      >
+                        <Video className="h-7 w-7 text-primary" />
+                        <span className="text-xs font-bold text-center leading-tight">Add Video</span>
+                        <span className="text-[10px] text-muted">MP4 up to 20s</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* 3. Additional Gallery Photos */}
+                {gallery.map((item) => (
+                  <div key={item.id} className="relative aspect-square overflow-hidden rounded-2xl border border-line bg-sunken">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.previewUrl} alt="Gallery preview" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryImage(item.id)}
                       className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft hover:text-danger hover:bg-white transition-colors"
-                      aria-label="Remove cover photo"
+                      aria-label="Remove gallery photo"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
-                  </>
-                ) : (
+                  </div>
+                ))}
+
+                {/* 4. Add More Media / Photos Button */}
+                {gallery.length + (video ? 1 : 0) < maxGalleryMedia && (
                   <button
                     type="button"
-                    onClick={() => coverInputRef.current?.click()}
-                    className="flex h-full w-full flex-col items-center justify-center gap-2 p-3 text-primary hover:bg-primary-soft/40 transition-colors"
+                    onClick={() => galleryInputRef.current?.click()}
+                    className="aspect-square rounded-2xl border-2 border-dashed border-line-strong bg-sunken text-muted hover:border-primary hover:bg-primary-soft/30 hover:text-primary transition-all flex flex-col items-center justify-center gap-1.5 p-3"
                   >
-                    <ImagePlus className="h-7 w-7" />
-                    <span className="text-xs font-bold text-center leading-tight">Add Cover Photo</span>
-                    <span className="text-[10px] text-muted">Primary display</span>
+                    <Plus className="h-6 w-6" />
+                    <span className="text-xs font-semibold">Add Photos</span>
+                    <span className="text-[10px] text-muted">
+                      {gallery.length}/{maxGalleryMedia - (video ? 1 : 0)} added
+                    </span>
                   </button>
                 )}
               </div>
-
-              {/* Gallery Items */}
-              {gallery.map((item) => (
-                <div key={item.id} className="relative aspect-square overflow-hidden rounded-2xl border border-line bg-sunken">
-                  {item.file.type === "video/mp4" ? (
-                    <>
-                      <video src={item.previewUrl} className="h-full w-full object-cover" muted playsInline />
-                      <span className="absolute left-2.5 top-2.5 rounded-full bg-ink/80 px-2 py-0.5 text-[10px] font-bold text-white flex items-center gap-1">
-                        <Video className="h-3 w-3" /> Video
-                      </span>
-                    </>
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.previewUrl} alt="Gallery preview" className="h-full w-full object-cover" />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => removeGalleryImage(item.id)}
-                    className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-ink shadow-soft hover:text-danger hover:bg-white transition-colors"
-                    aria-label="Remove gallery media"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-
-              {/* Add More Media Button */}
-              {gallery.length < maxGalleryMedia && (
-                <button
-                  type="button"
-                  onClick={() => galleryInputRef.current?.click()}
-                  className="aspect-square rounded-2xl border-2 border-dashed border-line-strong bg-sunken text-muted hover:border-primary hover:bg-primary-soft/30 hover:text-primary transition-all flex flex-col items-center justify-center gap-1.5 p-3"
-                >
-                  <Plus className="h-6 w-6" />
-                  <span className="text-xs font-semibold">Add Media</span>
-                  <span className="text-[10px] text-muted">{gallery.length}/{maxGalleryMedia} added</span>
-                </button>
-              )}
-            </div>
+            )}
 
             {fieldErrors.coverImage && (
               <p className="mt-2 text-xs font-semibold text-danger flex items-center gap-1">
@@ -464,7 +637,7 @@ export default function NewProductPage() {
             <div className="rounded-2xl bg-sunken/60 p-3.5 border border-line text-xs text-muted flex items-start gap-2.5">
               <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
               <span>
-                <strong>Seller Advice:</strong> Listings with at least 4 clear photos showing the product from different sides, active screen (for electronics), and tags/receipts sell much faster!
+                <strong>Seller Advice:</strong> Listings with a clear cover photo, product video, and 4+ photos showing the product from different angles sell much faster!
               </span>
             </div>
           </section>
@@ -900,7 +1073,8 @@ export default function NewProductPage() {
             )}
           </section>
 
-          {/* Section 5: Shipping, Dispatch & Delivery */}
+          {/* Section 5: Shipping, Dispatch & Delivery — Commented out as shipping and delivery are arranged directly in Transaction Chat */}
+          {/*
           <section className="rounded-3xl bg-surface border border-line shadow-soft p-6 sm:p-7 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -955,6 +1129,7 @@ export default function NewProductPage() {
               />
             </div>
           </section>
+          */}
 
           {/* Submit Action */}
           <div className="pt-2">
@@ -995,6 +1170,11 @@ export default function NewProductPage() {
                 {allowPriceAm && (
                   <span className="absolute left-2.5 top-2.5 rounded-full bg-primary text-white text-[10px] font-extrabold px-2.5 py-0.5 shadow-soft flex items-center gap-1">
                     <Sparkles className="h-3 w-3" /> Price Am
+                  </span>
+                )}
+                {video && (
+                  <span className="absolute bottom-2.5 left-2.5 rounded-full bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 flex items-center gap-1">
+                    <Video className="h-3 w-3 text-primary" /> Video Showcase
                   </span>
                 )}
                 <span className="absolute right-2.5 top-2.5 rounded-full bg-ink/80 text-white text-[10px] font-semibold px-2 py-0.5">

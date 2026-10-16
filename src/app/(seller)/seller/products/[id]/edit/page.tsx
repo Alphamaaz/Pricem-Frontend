@@ -464,7 +464,8 @@ export default function EditProductPage({
           </div>
         </section>
 
-        {/* Shipping */}
+        {/* Shipping & Delivery — Commented out as shipping and delivery are arranged directly in Transaction Chat */}
+        {/*
         <section className="rounded-3xl bg-surface border border-line shadow-soft p-6 space-y-4">
           <h2 className="text-sm font-semibold text-ink">
             Shipping &amp; Delivery
@@ -498,6 +499,7 @@ export default function EditProductPage({
             <textarea id="deliveryDetails" name="deliveryDetails" rows={3} maxLength={500} defaultValue={product.delivery.details ?? ""} className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/40" />
           </div>
         </section>
+        */}
 
         <div className="flex gap-3">
           <Button type="submit" full loading={submitting}>

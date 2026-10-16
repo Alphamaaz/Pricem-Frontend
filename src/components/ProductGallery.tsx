@@ -32,7 +32,17 @@ export function ProductGallery({
   locationText,
   isNegotiable = true,
 }: ProductGalleryProps) {
-  const items: GalleryItem[] = [{ type: "image", ...cover }, ...media];
+  // Ensure the cover image is index 0 so that when product details are opened,
+  // the cover image is displayed first on the main showcase.
+  // Then place any video at the top of the media list (index 1),
+  // followed by remaining gallery photos.
+  const videoItems = media.filter((m) => m.type === "video");
+  const imageItems = media.filter((m) => m.type !== "video");
+  const items: GalleryItem[] = [
+    { type: "image", ...cover },
+    ...videoItems,
+    ...imageItems,
+  ];
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
@@ -167,12 +177,12 @@ export function ProductGallery({
                 key={`${item.url}-${index}`}
                 type="button"
                 onClick={() => setSelectedIndex(index)}
-                aria-label={`View photo ${index + 1}`}
+                aria-label={item.type === "video" ? `Watch video presentation` : `View photo ${index + 1}`}
                 aria-pressed={isSelected}
                 className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 transition-all ${
                   isSelected
                     ? "border-primary shadow-glow ring-2 ring-primary/20 scale-[1.02]"
-                    : "border-line bg-sunken hover:border-primary/50 opacity-70 hover:opacity-100"
+                    : "border-line bg-sunken hover:border-primary/50 opacity-80 hover:opacity-100"
                 }`}
               >
                 {item.type === "video" ? (
@@ -185,22 +195,34 @@ export function ProductGallery({
                       className="h-full w-full object-cover"
                     />
                     <span className="absolute inset-0 flex items-center justify-center bg-black/40">
-                      <Play className="h-6 w-6 fill-white text-white drop-shadow" />
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white shadow-md">
+                        <Play className="h-3.5 w-3.5 fill-white text-white ml-0.5" />
+                      </span>
+                    </span>
+                    <span className="absolute bottom-1 left-1 rounded bg-black/85 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-white border border-white/20">
+                      Video
                     </span>
                   </>
                 ) : (
-                  <img
-                    src={item.url ? assetUrl(item.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80"}
-                    alt={item.alt ?? `${title} photo ${index + 1}`}
-                    loading="lazy"
-                    onError={(e) => {
-                      const el = e.currentTarget;
-                      if (!el.src.includes("photo-1523275335684-37898b6baf30")) {
-                        el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80";
-                      }
-                    }}
-                    className="h-full w-full object-cover"
-                  />
+                  <>
+                    <img
+                      src={item.url ? assetUrl(item.url) : "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80"}
+                      alt={item.alt ?? `${title} photo ${index + 1}`}
+                      loading="lazy"
+                      onError={(e) => {
+                        const el = e.currentTarget;
+                        if (!el.src.includes("photo-1523275335684-37898b6baf30")) {
+                          el.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80";
+                        }
+                      }}
+                      className="h-full w-full object-cover"
+                    />
+                    {index === 0 && (
+                      <span className="absolute bottom-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+                        Cover
+                      </span>
+                    )}
+                  </>
                 )}
               </button>
             );

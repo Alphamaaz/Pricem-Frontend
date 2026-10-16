@@ -170,7 +170,8 @@ export default async function ProductDetailPage({
             </div>
           </section>
 
-          {/* Delivery & Logistics Arrangement Card */}
+          {/* Delivery & Logistics Arrangement Card — Commented out as shipping and delivery are arranged directly in Transaction Chat */}
+          {/*
           <section className="rounded-3xl border border-line bg-surface p-6 shadow-soft space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary">
@@ -192,6 +193,7 @@ export default async function ProductDetailPage({
               </div>
             )}
           </section>
+          */}
         </div>
 
         {/* ================================================================= */}
