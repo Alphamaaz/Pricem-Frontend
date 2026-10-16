@@ -15,16 +15,12 @@ import {
   Handshake,
   Heart,
   MessageCircle,
-  Minus,
-  Plus,
   ShieldAlert,
   ShieldCheck,
-  ShoppingCart,
   Sparkles,
   TrendingDown,
   X,
 } from "lucide-react";
-import { addCartItem } from "@/lib/cart";
 import { addWishlistItem, removeWishlistItem } from "@/lib/wishlist";
 import { createOffer } from "@/lib/offers";
 import type { VariantSelection } from "@/lib/offers";
@@ -52,7 +48,6 @@ export function BuyBox({ product }: { product: Product }) {
   const setOfferOpen = (val: boolean) => setOfferOpenManual(val);
 
   const [offerPrice, setOfferPrice] = useState("");
-  const [quantity, setQuantity] = useState(1);
   const [savedToWishlist, setSavedToWishlist] = useState(false);
 
   const allSelected =
@@ -98,28 +93,6 @@ export function BuyBox({ product }: { product: Product }) {
 
   function showApiError(err: unknown, fallback: string) {
     setError(err instanceof ApiRequestError ? err.message : fallback);
-  }
-
-  async function onAddToCart(goToCart = false) {
-    if (!requireAuthOrSelection()) return;
-    setBusy(goToCart ? "buy" : "cart");
-    try {
-      await addCartItem({
-        productId: product._id,
-        quantity: Math.min(quantity, availableStock),
-        ...(selections.length ? { variantSelections: selections } : {}),
-      });
-      notifyCommerceChanged();
-      if (goToCart) {
-        router.push("/cart");
-      } else {
-        setNotice("Added to cart ✓");
-      }
-    } catch (err) {
-      showApiError(err, "Could not add to cart.");
-    } finally {
-      setBusy(null);
-    }
   }
 
   async function onWishlist() {
@@ -266,32 +239,6 @@ export function BuyBox({ product }: { product: Product }) {
       {error && <div className="mt-4"><Alert kind="error">{error}</Alert></div>}
       {notice && <div className="mt-4"><Alert kind="success">{notice}</Alert></div>}
 
-      {/* Quantity Selector */}
-      <div className="mt-5 flex items-center justify-between rounded-2xl bg-sunken p-3">
-        <span className="text-xs font-bold uppercase tracking-wider text-body">Select Quantity</span>
-        <div className="flex items-center rounded-xl border border-line bg-surface shadow-xs">
-          <button
-            type="button"
-            onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-            disabled={quantity <= 1 || busy !== null}
-            className="flex h-9 w-9 items-center justify-center text-body hover:text-primary disabled:opacity-30 transition-colors"
-            aria-label="Decrease quantity"
-          >
-            <Minus className="h-3.5 w-3.5" />
-          </button>
-          <span className="w-8 text-center text-sm font-bold text-ink">{quantity}</span>
-          <button
-            type="button"
-            onClick={() => setQuantity((current) => Math.min(availableStock, current + 1))}
-            disabled={quantity >= availableStock || busy !== null || !allSelected}
-            className="flex h-9 w-9 items-center justify-center text-body hover:text-primary disabled:opacity-30 transition-colors"
-            aria-label="Increase quantity"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </div>
-
       {/* Primary Actions Grid */}
       <div className="mt-5 space-y-3">
         {/* Row 1: PRICE AM (Bargaining Hero CTA) */}
@@ -305,63 +252,35 @@ export function BuyBox({ product }: { product: Product }) {
           }}
           className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary-light to-accent p-0.5 shadow-soft hover:shadow-glow transition-all active:scale-[0.99] disabled:opacity-50"
         >
-          <div className="flex h-13 items-center justify-between rounded-[14px] bg-gradient-to-r from-primary to-primary-dark px-5 text-white">
+          <div className="flex h-14 items-center justify-between rounded-[14px] bg-gradient-to-r from-primary to-primary-dark px-5 text-white">
             <div className="flex items-center gap-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur-xs">
-                <Handshake className="h-4.5 w-4.5" />
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-xs">
+                <Handshake className="h-5 w-5" />
               </span>
               <div className="text-left">
                 <span className="text-base font-extrabold tracking-wide uppercase block">Price Am</span>
-                <span className="text-[11px] text-white/80 font-medium block">Negotiate your custom price</span>
+                <span className="text-[11px] text-white/80 font-medium block">Make an offer / Negotiate price</span>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white tracking-wide">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1 text-xs font-bold text-white tracking-wide">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Price Am
+              Make Offer
             </span>
           </div>
         </button>
 
-        {/* Row 2: Buy Now + Add to Cart */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Row 2: Chat with Seller & Wishlist */}
+        <div className="flex items-center gap-2.5">
           <Button
-            size="lg"
-            full
             variant="dark"
-            disabled={!inStock || busy !== null}
-            loading={busy === "buy"}
-            onClick={() => onAddToCart(true)}
-            className="rounded-2xl"
-          >
-            Buy Now
-          </Button>
-
-          <Button
             size="lg"
-            full
-            variant="outline"
-            disabled={!inStock || busy !== null}
-            loading={busy === "cart"}
-            onClick={() => onAddToCart(false)}
-            className="rounded-2xl"
-          >
-            <ShoppingCart className="h-4 w-4" strokeWidth={2} />
-            Add to Cart
-          </Button>
-        </div>
-
-        {/* Row 3: Chat with Seller & Wishlist */}
-        <div className="flex items-center gap-2 pt-1">
-          <Button
-            variant="outline"
-            size="md"
             full
             disabled={busy !== null}
             loading={busy === "chat"}
             onClick={onOpenConversation}
-            className="rounded-xl border-line text-xs font-semibold flex-1 h-11"
+            className="rounded-2xl h-13 text-sm font-bold flex-1 shadow-soft"
           >
-            <MessageCircle className="h-4 w-4 text-primary" strokeWidth={2} />
+            <MessageCircle className="h-4.5 w-4.5 text-primary" strokeWidth={2} />
             Chat With Seller
           </Button>
 
@@ -369,14 +288,15 @@ export function BuyBox({ product }: { product: Product }) {
             type="button"
             onClick={onWishlist}
             disabled={busy !== null}
-            className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+            className={`inline-flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
               savedToWishlist
                 ? "border-primary bg-primary-soft text-primary"
-                : "border-line text-muted hover:border-primary hover:text-primary bg-surface"
+                : "border-line text-muted hover:border-primary hover:text-primary bg-surface shadow-xs"
             }`}
             aria-label={savedToWishlist ? "Saved" : "Save to wishlist"}
+            title={savedToWishlist ? "Saved to Wishlist" : "Save to Wishlist"}
           >
-            <Heart className={`h-4.5 w-4.5 ${savedToWishlist ? "fill-current" : ""}`} strokeWidth={2} />
+            <Heart className={`h-5 w-5 ${savedToWishlist ? "fill-current" : ""}`} strokeWidth={2} />
           </button>
         </div>
       </div>
