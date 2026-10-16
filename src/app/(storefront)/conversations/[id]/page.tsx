@@ -141,6 +141,21 @@ export default function ConversationPage() {
   const isOpen = conversation.status === "open";
   const isBuyer = conversation.buyer === currentUserId;
 
+  const [showSafety, setShowSafety] = useState(false);
+  const safetyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (safetyRef.current && !safetyRef.current.contains(event.target as Node)) {
+        setShowSafety(false);
+      }
+    }
+    if (showSafety) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [showSafety]);
+
   return (
     <div className="mx-auto max-w-3xl">
       <div className="flex items-center justify-between mb-3">
@@ -159,7 +174,7 @@ export default function ConversationPage() {
         {/* Workspace Banner */}
         <header className="shrink-0 border-b border-line bg-gradient-to-r from-surface via-cream/50 to-primary-soft/30 p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               {product?.coverImage?.url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -168,8 +183,8 @@ export default function ConversationPage() {
                   className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl border border-line object-cover shrink-0"
                 />
               )}
-              <div>
-                <div className="flex items-center gap-2">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide ${
                     isOrderWorkspace
                       ? "bg-success/15 text-success border border-success/30"
@@ -189,36 +204,67 @@ export default function ConversationPage() {
                 </h1>
               </div>
             </div>
-          </div>
 
-          {/* Platform Safety Warning */}
-          <div className="mt-2.5 rounded-xl bg-warning/15 border border-warning/40 px-3 py-2 text-xs text-ink leading-relaxed flex items-start gap-2">
-            <ShieldAlert className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-            <div>
-              <strong className="font-bold text-ink">Safety Warning: </strong>
-              Never send money in advance! Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent users immediately.
+            {/* Interactive Safety Advisory Popover / Tooltip */}
+            <div className="relative shrink-0" ref={safetyRef}>
+              <button
+                type="button"
+                onClick={() => setShowSafety((v) => !v)}
+                onMouseEnter={() => setShowSafety(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-warning/40 bg-warning/15 px-3 py-1.5 text-xs font-bold text-ink hover:bg-warning/25 transition-all shadow-xs cursor-pointer"
+                title="Safety Warning & Guidelines"
+              >
+                <ShieldAlert className="h-4 w-4 text-warning shrink-0" />
+                <span className="hidden sm:inline">Safety Advice</span>
+              </button>
+
+              {showSafety && (
+                <div
+                  onMouseLeave={() => setShowSafety(false)}
+                  className="absolute right-0 top-full mt-2 w-72 sm:w-84 rounded-2xl bg-surface border border-line p-4 shadow-lifted z-30 text-xs space-y-3 animate-fade-in-up"
+                >
+                  <div className="flex items-center justify-between border-b border-line pb-2">
+                    <span className="font-bold text-ink flex items-center gap-1.5">
+                      <ShieldAlert className="h-4 w-4 text-warning" />
+                      Platform Safety Advisory
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowSafety(false)}
+                      className="text-muted hover:text-ink text-sm px-1 leading-none"
+                      aria-label="Close"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="rounded-xl bg-warning/10 border border-warning/30 p-2.5 text-body leading-relaxed">
+                    <strong className="text-ink font-bold block mb-0.5">⚠️ Never Pay In Advance</strong>
+                    Inspect the item thoroughly before making payment directly to the seller upon delivery or meetup. Report fraudulent users immediately.
+                  </div>
+
+                  <div className="rounded-xl bg-sunken/70 border border-line p-2.5 text-body leading-relaxed flex items-start gap-2">
+                    {isOrderWorkspace ? (
+                      <>
+                        <Truck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-ink font-semibold block mb-0.5">Order Workspace Guide</strong>
+                          Use this chat to exchange meetup or delivery address, coordinate timing, and settle upon in-person inspection.
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="h-4 w-4 text-muted shrink-0 mt-0.5" />
+                        <div>
+                          <strong className="text-ink font-semibold block mb-0.5">Listing Chat Guide</strong>
+                          Ask questions about condition and specs. To negotiate price, use &quot;Price Am&quot; on the listing page.
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-
-          {/* Contextual instruction */}
-          <div className="mt-2 rounded-xl bg-surface/90 border border-line px-3 py-2 text-xs text-body leading-relaxed flex items-start gap-2">
-            {isOrderWorkspace ? (
-              <>
-                <Truck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-ink font-semibold">Direct Order Workspace: </strong>
-                  Use this chat to exchange meetup or delivery address, coordinate timing, and settle upon in-person inspection.
-                </div>
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="h-4 w-4 text-muted shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-ink font-semibold">Listing Chat: </strong>
-                  Ask the seller questions about product condition, availability, and specs. To negotiate price, use the <strong className="text-primary">&quot;Price Am&quot;</strong> button on the listing page.
-                </div>
-              </>
-            )}
           </div>
         </header>
 
