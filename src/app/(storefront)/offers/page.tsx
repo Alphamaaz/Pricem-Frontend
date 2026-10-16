@@ -449,16 +449,25 @@ function OffersContent() {
                     {/* Fast Presets */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[11px] text-muted font-medium">Quick presets:</span>
-                      {[5, 10, 15].map((pct) => (
-                        <button
-                          key={pct}
-                          type="button"
-                          onClick={() => applyPresetDiscount(o, pct)}
-                          className="px-2.5 py-1 rounded-lg text-xs font-bold bg-surface border border-line hover:border-primary text-ink transition-colors"
-                        >
-                          -{pct}%
-                        </button>
-                      ))}
+                      {[5, 10, 15].map((pct) => {
+                        const base = o.currentPrice || o.listedPrice;
+                        const discounted = Math.round(base * (1 - pct / 100));
+                        const isSelected = Number(counterPrice) === discounted;
+                        return (
+                          <button
+                            key={pct}
+                            type="button"
+                            onClick={() => applyPresetDiscount(o, pct)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                              isSelected
+                                ? "bg-primary text-white shadow-xs"
+                                : "bg-surface border border-line hover:border-primary text-ink"
+                            }`}
+                          >
+                            -{pct}% (₦{discounted.toLocaleString()})
+                          </button>
+                        );
+                      })}
                     </div>
 
                     <form
@@ -476,7 +485,7 @@ function OffersContent() {
                           type="number"
                           inputMode="numeric"
                           min="1"
-                          step="100"
+                          step="any"
                           required
                           autoFocus
                           value={counterPrice}

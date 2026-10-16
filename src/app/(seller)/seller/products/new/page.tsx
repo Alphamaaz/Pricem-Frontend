@@ -901,7 +901,7 @@ export default function NewProductPage() {
                         name="price"
                         type="number"
                         min="0"
-                        step="100"
+                        step="any"
                         required
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
@@ -924,7 +924,7 @@ export default function NewProductPage() {
                         name="minPrice"
                         type="number"
                         min="0"
-                        step="100"
+                        step="any"
                         value={minPrice}
                         onChange={(e) => setMinPrice(e.target.value)}
                         placeholder="Optional bottom price"
@@ -1020,7 +1020,7 @@ export default function NewProductPage() {
                               onChange={(e) => updateOption(variant.id, option.id, { price: e.target.value })}
                               type="number"
                               min="0"
-                              step="100"
+                              step="any"
                               required
                               placeholder="0"
                               className="h-9 text-xs rounded-lg"
@@ -1034,7 +1034,7 @@ export default function NewProductPage() {
                               onChange={(e) => updateOption(variant.id, option.id, { minPrice: e.target.value })}
                               type="number"
                               min="0"
-                              step="100"
+                              step="any"
                               placeholder="Optional"
                               className="h-9 text-xs rounded-lg"
                             />

@@ -478,7 +478,7 @@ export function BuyBox({ product }: { product: Product }) {
                     type="number"
                     inputMode="numeric"
                     min="100"
-                    step="100"
+                    step="any"
                     required
                     autoFocus
                     value={offerPrice}
