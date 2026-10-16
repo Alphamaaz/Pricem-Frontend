@@ -212,32 +212,10 @@ export function MarketplaceCatalog({
 
   return (
     <div className="space-y-3 sm:space-y-3.5" id="catalog-section">
-      {/* Category Quick Pills Strip (Directly at top of marketplace) */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-        {CATEGORY_ITEMS.map((cat) => {
-          const isSelected = selectedCategory === cat.id;
-          const Icon = cat.icon;
-          return (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`flex shrink-0 items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition-all shadow-xs ${
-                isSelected
-                  ? "bg-primary text-white shadow-soft"
-                  : "bg-surface border border-line text-ink hover:border-primary hover:text-primary"
-              }`}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
       {/* High-Efficiency Catalog Action Bar */}
       <div className="rounded-2xl border border-line bg-surface p-2 sm:p-2.5 shadow-xs flex flex-wrap items-center justify-between gap-2.5">
-        {/* Search within catalog */}
-        <div className="relative flex-1 min-w-[200px] max-w-md">
+        {/* Search within catalog (hidden on mobile to prevent duplicate search bars) */}
+        <div className="hidden md:block relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
           <input
             type="search"
@@ -257,7 +235,7 @@ export function MarketplaceCatalog({
         </div>
 
         {/* View Mode & Mobile Trigger */}
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
           {/* Mobile Filter Drawer Button */}
           <button
             onClick={() => setMobileDrawerOpen(true)}
