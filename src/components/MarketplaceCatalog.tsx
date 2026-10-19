@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import {
+  Baby,
   BookOpen,
   Check,
   ChevronDown,
@@ -10,6 +11,7 @@ import {
   Handshake,
   Headphones,
   Home as HomeIcon,
+  Laptop,
   LayoutGrid,
   List,
   MapPin,
@@ -19,23 +21,31 @@ import {
   Search,
   Shirt,
   SlidersHorizontal,
+  Smartphone,
   Sparkles,
   Tag,
+  Wrench,
   X,
 } from "lucide-react";
 import { listProducts, type Product, type ProductSort } from "@/lib/products";
+import { getCategories, DEFAULT_CATEGORIES, type Category } from "@/lib/categories";
 import { ProductCard } from "@/components/ProductCard";
 import { Button, Input } from "@/components/ui";
 
-const CATEGORY_ITEMS = [
-  { id: "", label: "All Categories", icon: Package },
-  { id: "electronics", label: "Electronics & Tech", icon: Headphones },
-  { id: "fashion", label: "Fashion & Apparel", icon: Shirt },
-  { id: "home", label: "Home & Furniture", icon: HomeIcon },
-  { id: "gaming", label: "Gaming & Consoles", icon: Gamepad2 },
-  { id: "books", label: "Books & Education", icon: BookOpen },
-  { id: "other", label: "General Goods", icon: Sparkles },
-];
+const CATEGORY_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Smartphone,
+  Laptop,
+  Baby,
+  Sparkles,
+  Wrench,
+  Headphones,
+  Shirt,
+  Home: HomeIcon,
+  HomeIcon,
+  Gamepad2,
+  BookOpen,
+  Package,
+};
 
 const NIGERIAN_STATES = [
   "All Nigeria",
@@ -77,6 +87,30 @@ export function MarketplaceCatalog({
   initialCategory = "",
 }: MarketplaceCatalogProps) {
   const [, startTransition] = useTransition();
+
+  // Dynamic Categories from API / Defaults
+  const [dynamicCategories, setDynamicCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    getCategories()
+      .then((cats) => {
+        if (cats && cats.length > 0) setDynamicCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
+  const categoryItems = useMemo(() => {
+    return [
+      { id: "", label: "All Categories", icon: Package },
+      ...dynamicCategories
+        .filter((c) => c.isActive !== false)
+        .map((c) => ({
+          id: c.slug,
+          label: c.name,
+          icon: CATEGORY_ICON_MAP[c.icon] || Package,
+        })),
+    ];
+  }, [dynamicCategories]);
 
   // Filters State
   const [search, setSearch] = useState(initialSearch);
@@ -354,7 +388,7 @@ export function MarketplaceCatalog({
               Category
             </label>
             <div className="space-y-1">
-              {CATEGORY_ITEMS.map((cat) => {
+              {categoryItems.map((cat) => {
                 const isSelected = selectedCategory === cat.id;
                 const Icon = cat.icon;
                 return (
@@ -498,7 +532,7 @@ export function MarketplaceCatalog({
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-black text-ink">
                 {selectedCategory
-                  ? CATEGORY_ITEMS.find((c) => c.id === selectedCategory)?.label || "Listings"
+                  ? categoryItems.find((c) => c.id === selectedCategory)?.label || "Listings"
                   : "All Marketplace Listings"}
               </h2>
               <span className="text-[11px] font-bold text-muted bg-sunken border border-line px-2 py-0.5 rounded-full">
@@ -674,7 +708,7 @@ export function MarketplaceCatalog({
                   Category
                 </label>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {CATEGORY_ITEMS.map((cat) => (
+                  {categoryItems.map((cat) => (
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.id)}

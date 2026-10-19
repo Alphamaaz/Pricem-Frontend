@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getMyProduct, updateProduct, CATEGORIES, NIGERIAN_STATES } from "@/lib/products";
+import { getCategories, DEFAULT_CATEGORIES, type Category } from "@/lib/categories";
 import type { Product } from "@/lib/products";
 import { ApiRequestError, assetUrl, tokenStore } from "@/lib/api";
 import { Alert, Button, Input, Label } from "@/components/ui";
@@ -32,6 +33,15 @@ export default function EditProductPage({
   const [newMediaCount, setNewMediaCount] = useState(0);
   const [retainedMediaUrls, setRetainedMediaUrls] = useState<string[]>([]);
   const [retainedImageUrls, setRetainedImageUrls] = useState<string[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    getCategories()
+      .then((cats) => {
+        if (cats && cats.length > 0) setAvailableCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!tokenStore.get()) {
@@ -279,14 +289,9 @@ export default function EditProductPage({
                 defaultValue={product.category}
                 className="w-full h-11 rounded-xl border border-line bg-surface px-4 text-sm text-ink capitalize focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
-                {(CATEGORIES.includes(
-                  product.category as (typeof CATEGORIES)[number],
-                )
-                  ? CATEGORIES
-                  : [product.category, ...CATEGORIES]
-                ).map((c) => (
-                  <option key={c} value={c} className="capitalize">
-                    {c}
+                {availableCategories.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.name}
                   </option>
                 ))}
               </select>

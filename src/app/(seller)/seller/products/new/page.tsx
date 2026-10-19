@@ -23,6 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { createProduct, CATEGORIES, NIGERIAN_STATES } from "@/lib/products";
+import { getCategories, DEFAULT_CATEGORIES, type Category } from "@/lib/categories";
 import { ApiRequestError, tokenStore } from "@/lib/api";
 import { Alert, Button, Input, Label } from "@/components/ui";
 
@@ -82,9 +83,20 @@ export default function NewProductPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // Dynamic Categories
+  const [availableCategories, setAvailableCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
+
+  useEffect(() => {
+    getCategories()
+      .then((cats) => {
+        if (cats && cats.length > 0) setAvailableCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
   // Form states for Live Preview & submission
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<string>(CATEGORIES[0] || "electronics");
+  const [category, setCategory] = useState<string>("mobile-phones");
   const [brand, setBrand] = useState("");
   const [condition, setCondition] = useState<"new" | "used">("used");
   const [conditionDetail, setConditionDetail] = useState("Foreign Used (Clean)");
@@ -685,8 +697,8 @@ export default function NewProductPage() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full h-11 rounded-xl border border-line bg-surface px-4 text-sm text-ink capitalize focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary"
                 >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat} className="capitalize">{cat}</option>
+                  {availableCategories.map((cat) => (
+                    <option key={cat.slug} value={cat.slug}>{cat.name}</option>
                   ))}
                 </select>
               </div>

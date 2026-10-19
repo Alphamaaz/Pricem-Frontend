@@ -192,6 +192,11 @@ export async function removeProduct(id: string) {
 
 /** Category options shown in UI (API accepts any string). */
 export const CATEGORIES = [
+  "mobile-phones",
+  "laptops-desktops",
+  "kids-toys",
+  "beauty-skincare",
+  "equipment-tools",
   "electronics",
   "fashion",
   "home",

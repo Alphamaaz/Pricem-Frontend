@@ -22,24 +22,43 @@ import {
   LifeBuoy,
   MapPin,
   MessageSquareWarning,
+  Baby,
+  BookOpen,
+  Edit2,
+  Gamepad2,
+  Headphones,
+  Home as HomeIcon,
+  Laptop,
   Package,
+  Plus,
   RefreshCw,
   Search,
   Server,
   Shield,
   ShieldCheck,
+  Shirt,
+  Smartphone,
   Sparkles,
   Store,
   Tag,
+  Trash2,
   Truck,
   UserCheck,
   UserX,
   Users,
   Wallet,
+  Wrench,
   XCircle,
 } from "lucide-react";
 import { getMe } from "@/lib/auth";
 import { assetUrl, tokenStore } from "@/lib/api";
+import {
+  getAdminCategories,
+  createAdminCategory,
+  updateAdminCategory,
+  deleteAdminCategory,
+  type Category,
+} from "@/lib/categories";
 import {
   getAdminAnalytics,
   getAdminUsers,
@@ -59,6 +78,31 @@ import type { User } from "@/lib/types";
 import { Logo } from "@/components/Logo";
 import { Button, Input } from "@/components/ui";
 
+const CATEGORY_ICON_PRESETS = [
+  { name: "Smartphone", label: "Phone", icon: Smartphone },
+  { name: "Laptop", label: "Computer", icon: Laptop },
+  { name: "Baby", label: "Kids & Toys", icon: Baby },
+  { name: "Sparkles", label: "Beauty", icon: Sparkles },
+  { name: "Wrench", label: "Tools", icon: Wrench },
+  { name: "Headphones", label: "Electronics", icon: Headphones },
+  { name: "Shirt", label: "Fashion", icon: Shirt },
+  { name: "HomeIcon", label: "Home", icon: HomeIcon },
+  { name: "Gamepad2", label: "Gaming", icon: Gamepad2 },
+  { name: "BookOpen", label: "Books", icon: BookOpen },
+  { name: "Package", label: "General", icon: Package },
+  { name: "Tag", label: "Category", icon: Tag },
+];
+
+function CategoryIconView({ iconName, className = "h-5 w-5" }: { iconName: string; className?: string }) {
+  const match = CATEGORY_ICON_PRESETS.find((p) => p.name === iconName);
+  if (match) {
+    const IconComp = match.icon;
+    return <IconComp className={className} />;
+  }
+  if (iconName === "Home") return <HomeIcon className={className} />;
+  return <Tag className={className} />;
+}
+
 const NAV_SHORTCUTS = [
   { href: "/admin/sellers", title: "Seller Applications", countKey: "pendingSellersCount" as const, icon: Store, color: "text-amber-500", bg: "bg-amber-500/10" },
   { href: "/admin/disputes", title: "Dispute Arbitration", countKey: "openDisputesCount" as const, icon: MessageSquareWarning, color: "text-danger", bg: "bg-danger/10" },
@@ -73,7 +117,7 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [analytics, setAnalytics] = useState<AdminAnalyticsData | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "requests" | "support" | "users" | "activity" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "requests" | "support" | "users" | "categories" | "activity" | "settings">("overview");
 
   // Operational request sub-filter
   const [requestFilter, setRequestFilter] = useState<"all" | "sellers" | "completions" | "payouts">("all");
@@ -84,6 +128,23 @@ export default function AdminDashboardPage() {
   const [userSearch, setUserSearch] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState("");
   const [userLoading, setUserLoading] = useState(false);
+
+  // Category management state
+  const [adminCategories, setAdminCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
+  const [categoryStatusFilter, setCategoryStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [categorySaving, setCategorySaving] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [categoryForm, setCategoryForm] = useState({
+    name: "",
+    slug: "",
+    icon: "Tag",
+    description: "",
+    order: 10,
+    isActive: true,
+  });
 
   // Operational modals & actions
   const [actionNotice, setActionNotice] = useState<string | null>(null);
@@ -180,6 +241,136 @@ export default function AdminDashboardPage() {
       } catch (err) {
         console.error(err);
       }
+    }
+    if (activeTab === "categories") {
+      try {
+        await loadCategories();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  const loadCategories = useCallback(async () => {
+    setCategoriesLoading(true);
+    try {
+      const res = await getAdminCategories();
+      setAdminCategories(res.categories || []);
+    } catch (err) {
+      console.error("Failed to load admin categories", err);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "categories" && ready) {
+      loadCategories();
+    }
+  }, [activeTab, ready, loadCategories]);
+
+  function openAddCategoryModal() {
+    setEditingCategory(null);
+    setCategoryForm({
+      name: "",
+      slug: "",
+      icon: "Tag",
+      description: "",
+      order: adminCategories.length + 1,
+      isActive: true,
+    });
+    setCategoryModalOpen(true);
+  }
+
+  function openEditCategoryModal(cat: Category) {
+    setEditingCategory(cat);
+    setCategoryForm({
+      name: cat.name,
+      slug: cat.slug,
+      icon: cat.icon || "Tag",
+      description: cat.description || "",
+      order: cat.order ?? 10,
+      isActive: cat.isActive !== false,
+    });
+    setCategoryModalOpen(true);
+  }
+
+  async function handleSaveCategory(e: React.FormEvent) {
+    e.preventDefault();
+    if (!categoryForm.name.trim()) return;
+    setCategorySaving(true);
+    try {
+      if (editingCategory && editingCategory._id) {
+        await updateAdminCategory(editingCategory._id, {
+          name: categoryForm.name.trim(),
+          slug: categoryForm.slug.trim() || undefined,
+          icon: categoryForm.icon,
+          description: categoryForm.description.trim(),
+          order: Number(categoryForm.order) || 1,
+          isActive: categoryForm.isActive,
+        });
+        showNotice(`Category "${categoryForm.name}" updated successfully.`);
+      } else {
+        await createAdminCategory({
+          name: categoryForm.name.trim(),
+          slug: categoryForm.slug.trim() || undefined,
+          icon: categoryForm.icon,
+          description: categoryForm.description.trim(),
+          order: Number(categoryForm.order) || 1,
+          isActive: categoryForm.isActive,
+        });
+        showNotice(`New category "${categoryForm.name}" created and added to storefront!`);
+      }
+      setCategoryModalOpen(false);
+      await loadCategories();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to save category";
+      alert(msg);
+    } finally {
+      setCategorySaving(false);
+    }
+  }
+
+  async function handleToggleCategoryStatus(cat: Category) {
+    if (!cat._id) {
+      showNotice("Default categories are active. Create or edit a category to override.");
+      return;
+    }
+    setBusyActionId(cat._id);
+    try {
+      await updateAdminCategory(cat._id, { isActive: !cat.isActive });
+      showNotice(`Category "${cat.name}" is now ${!cat.isActive ? "active" : "hidden"}.`);
+      await loadCategories();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to update status";
+      alert(msg);
+    } finally {
+      setBusyActionId(null);
+    }
+  }
+
+  async function handleDeleteCategory(cat: Category) {
+    if (!cat._id) {
+      alert("Default seed category cannot be directly deleted without a database record. You can customize or add categories freely.");
+      return;
+    }
+    const hasProducts = Boolean(cat.productCount && cat.productCount > 0);
+    const confirmPrompt = hasProducts
+      ? `"${cat.name}" has ${cat.productCount} active product(s). To protect seller listings, deleting it will automatically safely DEACTIVATE and hide it from the storefront. Continue?`
+      : `Are you sure you want to permanently delete category "${cat.name}"?`;
+
+    if (!confirm(confirmPrompt)) return;
+
+    setBusyActionId(cat._id);
+    try {
+      const res = await deleteAdminCategory(cat._id);
+      showNotice(res.message || `Category "${cat.name}" deleted.`);
+      await loadCategories();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to delete category";
+      alert(msg);
+    } finally {
+      setBusyActionId(null);
     }
   }
 
@@ -662,6 +853,7 @@ export default function AdminDashboardPage() {
             { id: "requests", label: "Operational Requests", count: (queues?.pendingSellersCount || 0) + (queues?.pendingCompletionCount || 0) + (queues?.eligiblePayoutsCount || 0), icon: Inbox },
             { id: "support", label: "Support & Disputes Desk", count: (queues?.openDisputesCount || 0) + (queues?.unansweredQuestionsCount || 0), icon: LifeBuoy },
             { id: "users", label: "User & Store Directory", icon: Users },
+            { id: "categories", label: "Categories Manager", icon: Tag },
             { id: "activity", label: "Live Activity Stream", icon: Activity },
             { id: "settings", label: "Platform & Data Export", icon: Server },
           ].map((tab) => (
@@ -1542,6 +1734,237 @@ export default function AdminDashboardPage() {
             </section>
           </div>
         )}
+
+        {/* ========================================================================= */}
+        {/* TAB 7: CATEGORIES MANAGER                                                 */}
+        {/* ========================================================================= */}
+        {activeTab === "categories" && (
+          <div className="space-y-6">
+            {/* Header & Actions */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-black text-ink flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-primary" />
+                  Dynamic Category Architecture
+                </h3>
+                <p className="text-xs text-muted">
+                  Add and manage dynamic categories displayed in customer browsing filters and seller product listing forms.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={loadCategories}
+                  disabled={categoriesLoading}
+                  className="rounded-2xl border-line text-xs font-bold"
+                >
+                  <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${categoriesLoading ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={openAddCategoryModal}
+                  className="rounded-2xl bg-primary text-xs font-bold shadow-soft"
+                >
+                  <Plus className="h-4 w-4 mr-1.5" />
+                  Add New Category
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Metrics */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="rounded-2xl border border-line bg-surface p-4 shadow-soft">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Total Categories</span>
+                <div className="text-xl font-black text-ink mt-1">{adminCategories.length}</div>
+                <span className="text-[10px] text-muted">Configured in platform</span>
+              </div>
+              <div className="rounded-2xl border border-line bg-surface p-4 shadow-soft">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Active on Storefront</span>
+                <div className="text-xl font-black text-success mt-1">
+                  {adminCategories.filter((c) => c.isActive).length}
+                </div>
+                <span className="text-[10px] text-muted">Browsing &amp; listings enabled</span>
+              </div>
+              <div className="rounded-2xl border border-line bg-surface p-4 shadow-soft">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Hidden / Disabled</span>
+                <div className="text-xl font-black text-amber-500 mt-1">
+                  {adminCategories.filter((c) => !c.isActive).length}
+                </div>
+                <span className="text-[10px] text-muted">Hidden from public</span>
+              </div>
+              <div className="rounded-2xl border border-line bg-surface p-4 shadow-soft">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted">With Live Listings</span>
+                <div className="text-xl font-black text-primary mt-1">
+                  {adminCategories.filter((c) => (c.productCount || 0) > 0).length}
+                </div>
+                <span className="text-[10px] text-muted">Have linked products</span>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div className="rounded-2xl border border-line bg-surface p-4 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
+                <Input
+                  value={categorySearch}
+                  onChange={(e) => setCategorySearch(e.target.value)}
+                  placeholder="Search categories by name, slug or description..."
+                  className="pl-9 text-xs rounded-xl"
+                />
+              </div>
+              <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                {(["all", "active", "inactive"] as const).map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setCategoryStatusFilter(filter)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
+                      categoryStatusFilter === filter
+                        ? "bg-primary text-white shadow-soft"
+                        : "bg-sunken text-muted hover:text-ink border border-line"
+                    }`}
+                  >
+                    {filter === "all" ? "All" : filter === "active" ? "Active Only" : "Hidden Only"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Categories Grid / List */}
+            {categoriesLoading ? (
+              <div className="p-12 text-center text-xs text-muted">
+                <RefreshCw className="h-6 w-6 animate-spin mx-auto text-primary mb-2" />
+                Loading dynamic categories architecture...
+              </div>
+            ) : adminCategories.filter((cat) => {
+                const matchesSearch =
+                  !categorySearch.trim() ||
+                  cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+                  cat.slug.toLowerCase().includes(categorySearch.toLowerCase()) ||
+                  (cat.description && cat.description.toLowerCase().includes(categorySearch.toLowerCase()));
+                const matchesStatus =
+                  categoryStatusFilter === "all" ||
+                  (categoryStatusFilter === "active" && cat.isActive) ||
+                  (categoryStatusFilter === "inactive" && !cat.isActive);
+                return matchesSearch && matchesStatus;
+              }).length === 0 ? (
+              <div className="rounded-3xl border border-line bg-surface p-12 text-center space-y-3">
+                <Tag className="h-10 w-10 text-muted mx-auto stroke-1" />
+                <h4 className="text-sm font-bold text-ink">No Categories Matched</h4>
+                <p className="text-xs text-muted max-w-sm mx-auto">
+                  No marketplace categories matched your query. Click below to add a new category.
+                </p>
+                <Button size="sm" onClick={openAddCategoryModal} className="rounded-xl font-bold bg-primary text-xs">
+                  <Plus className="h-3.5 w-3.5 mr-1" />
+                  Add New Category
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {adminCategories
+                  .filter((cat) => {
+                    const matchesSearch =
+                      !categorySearch.trim() ||
+                      cat.name.toLowerCase().includes(categorySearch.toLowerCase()) ||
+                      cat.slug.toLowerCase().includes(categorySearch.toLowerCase()) ||
+                      (cat.description && cat.description.toLowerCase().includes(categorySearch.toLowerCase()));
+                    const matchesStatus =
+                      categoryStatusFilter === "all" ||
+                      (categoryStatusFilter === "active" && cat.isActive) ||
+                      (categoryStatusFilter === "inactive" && !cat.isActive);
+                    return matchesSearch && matchesStatus;
+                  })
+                  .map((cat) => (
+                    <div
+                      key={cat._id || cat.slug}
+                      className={`group relative rounded-3xl border p-5 transition-all shadow-soft space-y-3 flex flex-col justify-between ${
+                        cat.isActive
+                          ? "bg-surface border-line hover:border-primary/40"
+                          : "bg-surface/50 border-line/60 opacity-80"
+                      }`}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-soft">
+                              <CategoryIconView iconName={cat.icon} className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-extrabold text-ink group-hover:text-primary transition-colors">
+                                {cat.name}
+                              </h4>
+                              <span className="text-[10px] font-mono font-semibold text-muted bg-sunken px-2 py-0.5 rounded-md border border-line">
+                                /{cat.slug}
+                              </span>
+                            </div>
+                          </div>
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
+                              cat.isActive
+                                ? "bg-success/10 text-success border border-success/20"
+                                : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                            }`}
+                          >
+                            {cat.isActive ? "Active" : "Hidden"}
+                          </span>
+                        </div>
+
+                        {cat.description ? (
+                          <p className="text-xs text-muted line-clamp-2 leading-relaxed">
+                            {cat.description}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted italic">No category description provided.</p>
+                        )}
+                      </div>
+
+                      <div className="pt-3 border-t border-line/80 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3 text-[11px] text-muted">
+                          <span>
+                            Priority: <strong className="text-ink font-bold">#{cat.order ?? 10}</strong>
+                          </span>
+                          <span>·</span>
+                          <span>
+                            Products: <strong className="text-primary font-bold">{cat.productCount ?? 0}</strong>
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleCategoryStatus(cat)}
+                            disabled={busyActionId === cat._id}
+                            title={cat.isActive ? "Hide from Storefront" : "Activate on Storefront"}
+                            className="px-2 py-1 rounded-lg border border-line bg-sunken text-[10px] font-bold text-muted hover:text-ink transition-colors"
+                          >
+                            {cat.isActive ? "Hide" : "Show"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openEditCategoryModal(cat)}
+                            title="Edit Category"
+                            className="p-1.5 rounded-lg border border-line bg-sunken text-muted hover:text-primary transition-colors"
+                          >
+                            <Edit2 className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCategory(cat)}
+                            disabled={busyActionId === cat._id}
+                            title="Delete or Deactivate Category"
+                            className="p-1.5 rounded-lg border border-line bg-sunken text-muted hover:text-danger transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
@@ -1812,6 +2235,189 @@ export default function AdminDashboardPage() {
                 </Button>
                 <Button type="submit" size="sm" loading={busyActionId === confirmingPayout._id} className="rounded-xl bg-success text-white font-bold">
                   Confirm Settled
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL 5: ADD / EDIT CATEGORY DYNAMICALLY                                  */}
+      {/* ========================================================================= */}
+      {categoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="w-full max-w-lg rounded-3xl border border-line bg-surface p-6 shadow-glow space-y-5 my-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Tag className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-ink">
+                    {editingCategory ? `Edit Category · ${editingCategory.name}` : "Create Dynamic Marketplace Category"}
+                  </h3>
+                  <p className="text-xs text-muted">
+                    {editingCategory
+                      ? "Update category settings, storefront display order, or icon."
+                      : "Add a new department instantly to storefront filters and product forms."}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCategoryModalOpen(false)}
+                className="text-muted hover:text-ink text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-4">
+              <div>
+                <label htmlFor="catName" className="block text-xs font-bold text-ink mb-1.5">
+                  Category Name *
+                </label>
+                <Input
+                  id="catName"
+                  required
+                  value={categoryForm.name}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const autoSlug = val
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, "-")
+                      .replace(/^-+|-+$/g, "");
+                    setCategoryForm((prev) => ({
+                      ...prev,
+                      name: val,
+                      slug: editingCategory ? prev.slug : autoSlug,
+                    }));
+                  }}
+                  placeholder="e.g. Mobile Phones, Equipment & Tools"
+                  className="text-xs rounded-xl"
+                />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="catSlug" className="block text-xs font-bold text-ink mb-1.5">
+                    URL Slug
+                  </label>
+                  <Input
+                    id="catSlug"
+                    value={categoryForm.slug}
+                    onChange={(e) =>
+                      setCategoryForm((prev) => ({
+                        ...prev,
+                        slug: e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/^-+|-+$/g, ""),
+                      }))
+                    }
+                    placeholder="e.g. mobile-phones"
+                    className="text-xs rounded-xl font-mono"
+                  />
+                  <span className="text-[10px] text-muted mt-1 block">Used in filters &amp; URLs</span>
+                </div>
+
+                <div>
+                  <label htmlFor="catOrder" className="block text-xs font-bold text-ink mb-1.5">
+                    Display Priority / Order
+                  </label>
+                  <Input
+                    id="catOrder"
+                    type="number"
+                    min={1}
+                    max={999}
+                    value={categoryForm.order}
+                    onChange={(e) =>
+                      setCategoryForm((prev) => ({
+                        ...prev,
+                        order: parseInt(e.target.value, 10) || 1,
+                      }))
+                    }
+                    className="text-xs rounded-xl"
+                  />
+                  <span className="text-[10px] text-muted mt-1 block">Lower numbers appear first</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-ink mb-2">
+                  Choose Category Icon Preset
+                </label>
+                <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                  {CATEGORY_ICON_PRESETS.map((preset) => {
+                    const isSelected = categoryForm.icon === preset.name;
+                    const IconC = preset.icon;
+                    return (
+                      <button
+                        key={preset.name}
+                        type="button"
+                        onClick={() => setCategoryForm((prev) => ({ ...prev, icon: preset.name }))}
+                        className={`flex flex-col items-center justify-center p-2 rounded-xl border text-center transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20 shadow-soft"
+                            : "border-line bg-sunken/40 text-muted hover:text-ink hover:border-line-strong"
+                        }`}
+                      >
+                        <IconC className="h-5 w-5 mb-1" />
+                        <span className="text-[9px] font-bold truncate w-full">{preset.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="catDesc" className="block text-xs font-bold text-ink mb-1.5">
+                  Category Description (Optional)
+                </label>
+                <textarea
+                  id="catDesc"
+                  rows={2}
+                  value={categoryForm.description}
+                  onChange={(e) => setCategoryForm((prev) => ({ ...prev, description: e.target.value }))}
+                  placeholder="Brief description of products belonging to this category..."
+                  className="w-full rounded-2xl border border-line bg-surface px-4 py-2 text-xs text-ink focus:outline-none focus:ring-4 focus:ring-primary/15"
+                />
+              </div>
+
+              <div className="flex items-center gap-2.5 rounded-xl bg-sunken p-3 border border-line">
+                <input
+                  id="catActive"
+                  type="checkbox"
+                  checked={categoryForm.isActive}
+                  onChange={(e) => setCategoryForm((prev) => ({ ...prev, isActive: e.target.checked }))}
+                  className="h-4 w-4 rounded text-primary focus:ring-primary border-line"
+                />
+                <label htmlFor="catActive" className="text-xs font-bold text-ink cursor-pointer">
+                  Publish to Storefront immediately
+                  <span className="block text-[10px] font-normal text-muted">
+                    When active, this category appears in homepage filters and product listing forms.
+                  </span>
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-line">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCategoryModalOpen(false)}
+                  className="rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  loading={categorySaving}
+                  className="rounded-xl bg-primary text-white font-bold"
+                >
+                  {editingCategory ? "Save Changes" : "Create Category"}
                 </Button>
               </div>
             </form>
