@@ -8,9 +8,13 @@ import {
   BarChart3,
   CheckCircle2,
   Handshake,
+  Image as ImageIcon,
   PackagePlus,
   ShieldCheck,
   Sparkles,
+  Store,
+  Trash2,
+  Upload,
   Zap,
 } from "lucide-react";
 import { getMe } from "@/lib/auth";
@@ -29,6 +33,8 @@ export default function SellerOnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [createdProfile, setCreatedProfile] = useState<SellerProfile | null>(null);
   const [slugPreview, setSlugPreview] = useState("");
+  const [storeImageFile, setStoreImageFile] = useState<File | null>(null);
+  const [storeImagePreview, setStoreImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (!tokenStore.get()) {
@@ -57,6 +63,7 @@ export default function SellerOnboardingPage() {
         storeName,
         storeSlug: storeSlug || undefined,
         description: description || undefined,
+        storeImage: storeImageFile || undefined,
       });
 
       setCreatedProfile(res.sellerProfile);
@@ -325,6 +332,68 @@ export default function SellerOnboardingPage() {
                   className="w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-xs sm:text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary transition-shadow mt-1"
                   placeholder="What products or brands do you specialize in?"
                 />
+              </div>
+
+              {/* Storefront Logo (Optional) */}
+              <div className="rounded-2xl border border-line bg-sunken/40 p-4 space-y-3">
+                <div>
+                  <Label className="text-xs font-bold text-ink flex items-center justify-between">
+                    <span>Store Logo / Brand Photo</span>
+                    <span className="text-muted font-normal text-[11px]">Optional</span>
+                  </Label>
+                  <p className="text-[11px] text-muted mt-0.5">
+                    Recommended square image (JPG, PNG, WebP up to 10MB). You can also add or change this later.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="relative h-16 w-16 shrink-0 rounded-2xl bg-surface border border-line overflow-hidden flex items-center justify-center shadow-soft">
+                    {storeImagePreview ? (
+                      <img
+                        src={storeImagePreview}
+                        alt="Store Logo Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-muted">
+                        <Store className="h-6 w-6 stroke-[1.5]" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface border border-line hover:border-primary/50 text-ink text-xs font-semibold cursor-pointer shadow-soft transition-all">
+                      <Upload className="h-3.5 w-3.5 text-primary" />
+                      <span>{storeImagePreview ? "Change Logo" : "Upload Logo"}</span>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setStoreImageFile(file);
+                            setStoreImagePreview(URL.createObjectURL(file));
+                          }
+                        }}
+                      />
+                    </label>
+
+                    {storeImagePreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStoreImageFile(null);
+                          setStoreImagePreview(null);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-danger/20 text-danger hover:bg-danger/10 text-xs font-semibold transition-all"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Submit Button */}
