@@ -17,7 +17,7 @@ import {
 import { getProductServer, listProductsServer } from "@/lib/products";
 import { BuyBox } from "@/components/BuyBox";
 import { ProductGallery } from "@/components/ProductGallery";
-import { listProductReviewsServer, listSellerReviewsServer } from "@/lib/reviews";
+import { listProductReviewsServer, listSellerReviewsServer, type Review } from "@/lib/reviews";
 import { listProductQuestionsServer } from "@/lib/questions";
 import { PromotionActions } from "@/components/PromotionActions";
 import { ProductQuestions } from "@/components/ProductQuestions";
@@ -67,6 +67,30 @@ export default async function ProductDetailPage({
     : "Nigeria";
 
   const relatedProducts = relatedResult.products.filter((p) => p._id !== id).slice(0, 3);
+
+  // Merge and deduplicate seller & product reviews for a unified P2P trust view
+  const reviewMap = new Map<string, Review>();
+  sellerReviewResult.reviews.forEach((r) => reviewMap.set(r._id, r));
+  reviewResult.reviews.forEach((r) => {
+    if (!reviewMap.has(r._id)) {
+      reviewMap.set(r._id, r);
+    }
+  });
+  const allReviews = Array.from(reviewMap.values());
+  const effectiveRatingCount =
+    (product.sellerRatingCount ?? 0) > 0
+      ? product.sellerRatingCount!
+      : product.ratingCount > 0
+      ? product.ratingCount
+      : allReviews.length;
+  const effectiveRatingAverage =
+    (product.sellerRatingAverage ?? 0) > 0
+      ? product.sellerRatingAverage!
+      : product.ratingAverage > 0
+      ? product.ratingAverage
+      : allReviews.length > 0
+      ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
+      : 0;
 
   return (
     <div className="space-y-10 sm:space-y-12 max-w-7xl mx-auto">
@@ -273,97 +297,91 @@ export default async function ProductDetailPage({
       </section>
 
       {/* ================================================================= */}
-      {/* FULL WIDTH: Customer Reviews & Seller Ratings                     */}
+      {/* FULL WIDTH: Seller Reputation & Buyer Feedback                    */}
       {/* ================================================================= */}
-      <div className="grid lg:grid-cols-2 gap-8 pt-4">
-        {/* Item Reviews */}
-        <section className="rounded-3xl border border-line bg-surface p-6 sm:p-7 shadow-soft space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-line">
-            <div>
-              <h2 className="text-base font-bold text-ink">Verified Buyer Reviews</h2>
-              <p className="text-xs text-muted">Feedback from shoppers with completed orders.</p>
+      <section className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-soft space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
+          <div>
+            <div className="flex items-center gap-2">
+              <Store className="h-5 w-5 text-primary" />
+              <h2 className="text-base sm:text-lg font-bold text-ink">
+                Seller Reputation &amp; Buyer Feedback
+              </h2>
             </div>
-            {product.ratingCount > 0 && (
-              <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-                <Star className="h-4 w-4 fill-accent text-accent" />
-                <span>{product.ratingAverage.toFixed(1)} / 5.0</span>
-                <span className="text-muted">({product.ratingCount})</span>
-              </div>
-            )}
+            <p className="text-xs text-muted mt-1">
+              Verified ratings and reviews for <span className="font-semibold text-ink">{product.storeName || product.sellerFullName || "this seller"}</span> from completed PriceAm deals.
+            </p>
           </div>
 
-          <div className="space-y-3">
-            {reviewResult.reviews.map((review) => (
-              <article key={review._id} className="rounded-2xl bg-sunken p-4 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-ink">
-                    {typeof review.buyer === "string" ? "Verified Buyer" : review.buyer.fullName}
-                  </span>
-                  <span className="flex items-center gap-1 text-xs font-bold text-accent">
-                    <Star className="h-3.5 w-3.5 fill-accent" />
-                    {review.rating}/5
-                  </span>
-                </div>
-                <p className="text-xs text-body leading-relaxed">{review.text}</p>
-                <p className="text-[10px] text-muted">
-                  Verified Purchase · {new Date(review.createdAt).toLocaleDateString()}
-                </p>
-              </article>
-            ))}
-            {reviewResult.reviews.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-line p-8 text-center text-xs text-muted">
-                No reviews recorded yet for this listing. Be the first to buy and review!
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Merchant Store Reputation */}
-        <section className="rounded-3xl border border-line bg-surface p-6 sm:p-7 shadow-soft space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-line">
-            <div>
-              <h2 className="text-base font-bold text-ink">Merchant Reputation ({product.storeName})</h2>
-              <p className="text-xs text-muted">Customer ratings for this store across all listings.</p>
+          {effectiveRatingCount > 0 ? (
+            <div className="flex items-center gap-2 bg-sunken px-4 py-2 rounded-2xl border border-line self-start sm:self-auto">
+              <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-accent text-accent" />
+              <span className="text-base font-extrabold text-ink">
+                {effectiveRatingAverage.toFixed(1)}
+              </span>
+              <span className="text-xs text-muted font-medium">
+                / 5.0 ({effectiveRatingCount} {effectiveRatingCount === 1 ? "review" : "reviews"})
+              </span>
             </div>
-            {(product.sellerRatingCount ?? 0) > 0 && (
-              <div className="flex items-center gap-1.5 text-xs font-bold text-ink">
-                <Star className="h-4 w-4 fill-accent text-accent" />
-                <span>{product.sellerRatingAverage?.toFixed(1)}</span>
-                <span className="text-muted">({product.sellerRatingCount})</span>
-              </div>
-            )}
-          </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 self-start sm:self-auto">
+              <ShieldCheck className="h-4 w-4" />
+              <span>Verified PriceAm Member</span>
+            </div>
+          )}
+        </div>
 
-          <div className="space-y-3">
-            {sellerReviewResult.reviews.map((review) => (
-              <article key={review._id} className="rounded-2xl bg-sunken p-4 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-ink">Verified Customer</span>
-                  <span className="flex items-center gap-1 text-xs font-bold text-accent">
-                    <Star className="h-3.5 w-3.5 fill-accent" />
-                    {review.rating}/5
-                  </span>
-                </div>
-                {review.tags && review.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {review.tags.map((tag) => (
-                      <span key={tag} className="rounded-md bg-surface px-2 py-0.5 text-[10px] capitalize text-muted">
-                        {tag}
-                      </span>
-                    ))}
+        {allReviews.length > 0 ? (
+          <div className="grid md:grid-cols-2 gap-4">
+            {allReviews.map((review) => {
+              const reviewerName =
+                typeof review.buyer === "string"
+                  ? "Verified Buyer"
+                  : review.buyer?.fullName || "Verified Buyer";
+              return (
+                <article key={review._id} className="rounded-2xl bg-sunken/70 border border-line/60 p-4 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-ink">{reviewerName}</span>
+                    <span className="flex items-center gap-1 text-xs font-extrabold text-accent bg-accent/10 px-2 py-0.5 rounded-md">
+                      <Star className="h-3 w-3 fill-accent" />
+                      {review.rating}/5
+                    </span>
                   </div>
-                )}
-                {review.text && <p className="text-xs text-body leading-relaxed">{review.text}</p>}
-              </article>
-            ))}
-            {sellerReviewResult.reviews.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-line p-8 text-center text-xs text-muted">
-                This merchant does not have store ratings yet.
-              </div>
-            )}
+
+                  {review.tags && review.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {review.tags.map((tag) => (
+                        <span key={tag} className="rounded-md bg-surface px-2 py-0.5 text-[10px] font-medium capitalize text-muted border border-line">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {review.text && (
+                    <p className="text-xs text-body leading-relaxed">{review.text}</p>
+                  )}
+
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted pt-1">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                    <span>Verified Deal · {new Date(review.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
-        </section>
-      </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-line bg-sunken/30 p-6 sm:p-8 text-center space-y-2.5">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <h3 className="text-sm font-bold text-ink">New Seller on PriceAm</h3>
+            <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
+              <span className="font-medium text-ink">{product.storeName || product.sellerFullName || "This seller"}</span> hasn&apos;t received customer ratings yet. Safe trading tip: Always meet in a public location and inspect the item before confirming the deal and completing payment.
+            </p>
+          </div>
+        )}
+      </section>
 
       {/* ================================================================= */}
       {/* RELATED LISTINGS IN THIS CATEGORY                                 */}
