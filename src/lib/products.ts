@@ -68,6 +68,9 @@ export interface Product {
   sellerRatingAverage?: number;
   sellerRatingCount?: number;
   sellerPhone?: string;
+  sellerFullName?: string;
+  sellerStoreImage?: string;
+  sellerProfileImage?: string;
   sellerJoinedAt?: string;
   promotion?: { enabled: boolean; commissionPercent?: number; startsAt?: string; endsAt?: string };
   createdAt: string;

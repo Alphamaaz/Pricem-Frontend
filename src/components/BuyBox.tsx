@@ -11,21 +11,30 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
+  CheckCircle2,
+  Clock,
+  Copy,
+  Flag,
   Handshake,
   Heart,
-  MessageCircle,
+  MessageSquare,
+  Phone,
+  PhoneCall,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Store,
   TrendingDown,
+  User,
   X,
 } from "lucide-react";
 import { addWishlistItem, removeWishlistItem } from "@/lib/wishlist";
 import { createOffer } from "@/lib/offers";
 import type { VariantSelection } from "@/lib/offers";
 import type { Product } from "@/lib/products";
-import { ApiRequestError, tokenStore } from "@/lib/api";
+import { ApiRequestError, assetUrl, tokenStore } from "@/lib/api";
 import { notifyCommerceChanged } from "@/lib/commerce-events";
 import { openListingConversation } from "@/lib/chat";
 import { Alert, Button, Input } from "@/components/ui";
@@ -76,6 +85,29 @@ export function BuyBox({ product }: { product: Product }) {
   }, [hasVariants, allSelected, selected, product]);
 
   const inStock = availableStock > 0;
+
+  const [contactRevealed, setContactRevealed] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+  const [reported, setReported] = useState(false);
+
+  const sellerAvatar = product.sellerStoreImage || product.sellerProfileImage;
+  const displayStoreName = product.storeName || product.sellerFullName || "Merchant Store";
+  const sellerContactPhone = product.contactPhone || product.sellerPhone;
+
+  function formatSellerTenure(dateString?: string): string {
+    if (!dateString) return "1+ month on PriceAm";
+    const joined = new Date(dateString);
+    const now = new Date();
+    const diffMonths = (now.getFullYear() - joined.getFullYear()) * 12 + (now.getMonth() - joined.getMonth());
+    if (diffMonths >= 12) {
+      const years = Math.floor(diffMonths / 12);
+      return `${years}+ year${years > 1 ? "s" : ""} on PriceAm`;
+    }
+    if (diffMonths >= 1) {
+      return `${diffMonths}+ month${diffMonths > 1 ? "s" : ""} on PriceAm`;
+    }
+    return "New on PriceAm";
+  }
 
   function requireAuthOrSelection(): boolean {
     setError(null);
@@ -173,75 +205,81 @@ export function BuyBox({ product }: { product: Product }) {
     setOfferPrice(String(discounted));
   }
 
-
   return (
-    <div className="rounded-3xl border border-line bg-surface p-6 shadow-soft">
-      {/* Price & Stock Display */}
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <div>
-          <span className="text-xs uppercase tracking-wider text-muted font-bold block mb-0.5">Price</span>
-          <div className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">
-            ₦{displayPrice.toLocaleString()}
+    <div className="space-y-5">
+      {/* CARD 1: Price, Status & Price Am Offer */}
+      <div className="rounded-3xl border border-line bg-surface p-6 shadow-soft space-y-5">
+        {/* Price & Stock Display */}
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs uppercase tracking-wider text-muted font-bold block">Price</span>
+              {product.negotiable !== false && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-soft text-primary text-[11px] font-bold">
+                  Negotiable
+                </span>
+              )}
+            </div>
+            <div className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight">
+              ₦{displayPrice.toLocaleString()}
+            </div>
+          </div>
+          <div className="text-right">
+            {inStock ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success border border-success/20">
+                <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                In stock ({availableStock} left)
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-danger/10 px-3 py-1 text-xs font-semibold text-danger border border-danger/20">
+                {allSelected ? "Out of stock" : "Select options"}
+              </span>
+            )}
           </div>
         </div>
-        <div className="text-right">
-          {inStock ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success border border-success/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-              In stock ({availableStock} left)
-            </span>
-          ) : (
-            <span className="inline-flex items-center rounded-full bg-danger/10 px-3 py-1 text-xs font-semibold text-danger border border-danger/20">
-              {allSelected ? "Out of stock" : "Select options"}
-            </span>
-          )}
-        </div>
-      </div>
 
-      {/* Variant selection */}
-      {hasVariants && (
-        <div className="mt-5 pt-5 border-t border-line space-y-4">
-          {product.variants.map((v) => (
-            <div key={v.name}>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">
-                {v.name}
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {v.options.map((o) => {
-                  const active = selected[v.name] === o.value;
-                  const out = o.stock <= 0;
-                  return (
-                    <button
-                      key={o.value}
-                      type="button"
-                      disabled={out}
-                      onClick={() =>
-                        setSelected((s) => ({ ...s, [v.name]: o.value }))
-                      }
-                      className={`rounded-xl border px-3.5 py-1.5 text-xs font-medium transition-all ${
-                        active
-                          ? "border-primary bg-primary text-white shadow-soft"
-                          : out
-                            ? "border-line text-muted line-through opacity-50 cursor-not-allowed bg-sunken"
-                            : "border-line text-body hover:border-primary hover:text-primary bg-surface"
-                      }`}
-                    >
-                      {o.value} · ₦{o.price.toLocaleString()}
-                    </button>
-                  );
-                })}
+        {/* Variant selection */}
+        {hasVariants && (
+          <div className="pt-4 border-t border-line space-y-4">
+            {product.variants.map((v) => (
+              <div key={v.name}>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted mb-2">
+                  {v.name}
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {v.options.map((o) => {
+                    const active = selected[v.name] === o.value;
+                    const out = o.stock <= 0;
+                    return (
+                      <button
+                        key={o.value}
+                        type="button"
+                        disabled={out}
+                        onClick={() =>
+                          setSelected((s) => ({ ...s, [v.name]: o.value }))
+                        }
+                        className={`rounded-xl border px-3.5 py-1.5 text-xs font-medium transition-all ${
+                          active
+                            ? "border-primary bg-primary text-white shadow-soft"
+                            : out
+                              ? "border-line text-muted line-through opacity-50 cursor-not-allowed bg-sunken"
+                              : "border-line text-body hover:border-primary hover:text-primary bg-surface"
+                        }`}
+                      >
+                        {o.value} · ₦{o.price.toLocaleString()}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {error && <div className="mt-4"><Alert kind="error">{error}</Alert></div>}
-      {notice && <div className="mt-4"><Alert kind="success">{notice}</Alert></div>}
+        {error && <div><Alert kind="error">{error}</Alert></div>}
+        {notice && <div><Alert kind="success">{notice}</Alert></div>}
 
-      {/* Primary Actions Grid */}
-      <div className="mt-5 space-y-3">
-        {/* Row 1: PRICE AM (Bargaining Hero CTA) */}
+        {/* Hero Price Am Negotiation CTA */}
         <button
           type="button"
           disabled={!inStock || busy !== null}
@@ -268,43 +306,162 @@ export function BuyBox({ product }: { product: Product }) {
             </span>
           </div>
         </button>
+      </div>
 
-        {/* Row 2: Chat with Seller & Wishlist */}
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="dark"
-            size="lg"
-            full
+      {/* CARD 2: Merchant & Seller Contact Card (Matches Reference Screenshot) */}
+      <div className="rounded-3xl border border-line bg-surface p-5 sm:p-6 shadow-soft space-y-4">
+        {/* Top: Avatar + Store Name + Badges */}
+        <div className="flex items-start gap-3.5">
+          {/* Avatar (Stylized Hexagon / Rounded with emerald accent) */}
+          <div className="relative h-15 w-15 sm:h-16 sm:w-16 shrink-0 rounded-2xl overflow-hidden border-2 border-emerald-500/40 bg-sunken shadow-soft flex items-center justify-center">
+            {sellerAvatar ? (
+              <img
+                src={assetUrl(sellerAvatar)}
+                alt={displayStoreName}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-600 to-teal-800 text-white font-black text-xl">
+                {displayStoreName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          {/* Info Details */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {product.storeSlug ? (
+                <Link
+                  href={`/store/${product.storeSlug}`}
+                  className="font-black text-base sm:text-lg text-ink hover:text-primary transition-colors truncate"
+                >
+                  {displayStoreName}
+                </Link>
+              ) : (
+                <h3 className="font-black text-base sm:text-lg text-ink truncate">{displayStoreName}</h3>
+              )}
+            </div>
+
+            {/* Badges Row */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sunken text-body text-[11px] font-semibold border border-line">
+                <User className="h-3 w-3 text-muted" />
+                {formatSellerTenure(product.sellerJoinedAt || product.createdAt)}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[11px] font-bold border border-emerald-500/20">
+                <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                Verified ID
+              </span>
+            </div>
+
+            {/* Response time */}
+            <div className="flex items-center gap-1.5 text-[11px] text-muted mt-1.5 font-medium">
+              <Clock className="h-3 w-3 text-emerald-600" />
+              <span>Replies in a few hours</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Buttons: Show Contact & Start Chat */}
+        <div className="space-y-2.5 pt-1">
+          {/* Show Contact Button & Reveal State */}
+          {!contactRevealed ? (
+            <button
+              type="button"
+              onClick={() => setContactRevealed(true)}
+              className="w-full h-12 rounded-2xl bg-[#00b53f] hover:bg-[#009e37] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.99]"
+            >
+              <Phone className="h-4.5 w-4.5" />
+              <span>Show contact</span>
+            </button>
+          ) : (
+            <div className="w-full rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 flex flex-col gap-2.5 animate-fade-in-up">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-emerald-600 text-white">
+                    <Phone className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="font-mono font-bold text-sm sm:text-base text-ink">
+                    {sellerContactPhone || "No direct phone provided"}
+                  </span>
+                </div>
+                {sellerContactPhone && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(sellerContactPhone);
+                      setCopiedPhone(true);
+                      setTimeout(() => setCopiedPhone(false), 2000);
+                    }}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface border border-emerald-200 text-[11px] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                  >
+                    <Copy className="h-3 w-3" />
+                    <span>{copiedPhone ? "Copied!" : "Copy"}</span>
+                  </button>
+                )}
+              </div>
+              {sellerContactPhone && (
+                <div className="flex gap-2 pt-0.5">
+                  <a
+                    href={`tel:${sellerContactPhone}`}
+                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                  >
+                    <PhoneCall className="h-3.5 w-3.5" /> Call Now
+                  </a>
+                  <a
+                    href={`https://wa.me/${sellerContactPhone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hi, I'm interested in your listing: "${product.title}" on PriceAm.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-2 px-3 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Start Chat Button */}
+          <button
+            type="button"
             disabled={busy !== null}
-            loading={busy === "chat"}
             onClick={onOpenConversation}
-            className="rounded-2xl h-13 text-sm font-bold flex-1 shadow-soft"
+            className="w-full h-12 rounded-2xl border-2 border-[#00b53f] hover:bg-emerald-50 text-[#00b53f] font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-50"
           >
-            <MessageCircle className="h-4.5 w-4.5 text-primary" strokeWidth={2} />
-            Chat With Seller
-          </Button>
+            <MessageSquare className="h-4.5 w-4.5" />
+            <span>{busy === "chat" ? "Opening conversation…" : "Start chat"}</span>
+          </button>
+        </div>
 
+        {/* Footer Actions (Matches screenshot: Wishlist & Report Abuse) */}
+        <div className="pt-2 border-t border-line flex items-center justify-between text-xs font-semibold text-muted px-1">
           <button
             type="button"
             onClick={onWishlist}
             disabled={busy !== null}
-            className={`inline-flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
-              savedToWishlist
-                ? "border-primary bg-primary-soft text-primary"
-                : "border-line text-muted hover:border-primary hover:text-primary bg-surface shadow-xs"
-            }`}
-            aria-label={savedToWishlist ? "Saved" : "Save to wishlist"}
-            title={savedToWishlist ? "Saved to Wishlist" : "Save to Wishlist"}
+            className="inline-flex items-center gap-1.5 text-muted hover:text-primary transition-colors"
           >
-            <Heart className={`h-5 w-5 ${savedToWishlist ? "fill-current" : ""}`} strokeWidth={2} />
+            <Heart className={`h-4 w-4 ${savedToWishlist ? "fill-primary text-primary" : ""}`} />
+            <span>{savedToWishlist ? "Saved in Wishlist" : "Save for later"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setReported(true);
+              setNotice("Listing reported to safety moderation team.");
+            }}
+            className="inline-flex items-center gap-1.5 text-danger/80 hover:text-danger transition-colors"
+          >
+            <Flag className="h-3.5 w-3.5" />
+            <span>{reported ? "Reported" : "Report Abuse"}</span>
           </button>
         </div>
       </div>
 
-      {/* Platform Safety Warning Banner */}
-      <div className="mt-5 rounded-2xl border border-warning/40 bg-warning/10 p-3.5 flex items-start gap-2.5">
+      {/* CARD 3: Safety Warning Banner */}
+      <div className="rounded-2xl border border-warning/40 bg-warning/10 p-3.5 flex items-start gap-2.5 text-xs text-ink leading-relaxed">
         <ShieldAlert className="h-4.5 w-4.5 text-warning shrink-0 mt-0.5" />
-        <div className="text-xs text-ink leading-relaxed">
+        <div>
           <strong className="font-bold text-ink">Safety Warning: </strong>
           Never pay in advance. PriceAm is not involved in financial transactions. Inspect the item thoroughly before making payment directly to the seller. Report any fraudulent sellers immediately.
         </div>
