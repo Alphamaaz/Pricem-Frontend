@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   Bell,
+  Camera,
   CheckCircle2,
   ChevronRight,
   ExternalLink,
+  Image as ImageIcon,
   KeyRound,
   Lock,
   LogOut,
@@ -19,12 +21,14 @@ import {
   Smartphone,
   Sparkles,
   Store,
+  Trash2,
   Truck,
+  Upload,
   User as UserIcon,
 } from "lucide-react";
 import { changePassword, getMe } from "@/lib/auth";
 import { switchRole, updateProfile } from "@/lib/users";
-import { ApiRequestError, tokenStore } from "@/lib/api";
+import { ApiRequestError, assetUrl, tokenStore } from "@/lib/api";
 import { Button } from "@/components/ui";
 import type { Role, User } from "@/lib/types";
 
@@ -64,6 +68,15 @@ export default function ProfilePage() {
   const [contactNumber, setContactNumber] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
+  // Profile Image & Store Image State (Optional)
+  const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+  const [removeProfileImage, setRemoveProfileImage] = useState(false);
+
+  const [storeImageFile, setStoreImageFile] = useState<File | null>(null);
+  const [storeImagePreview, setStoreImagePreview] = useState<string | null>(null);
+  const [removeStoreImage, setRemoveStoreImage] = useState(false);
+
   // Security Form State
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -100,8 +113,10 @@ export default function ProfilePage() {
         setUser(u);
         setFullName(u.fullName || "");
         setContactNumber(u.contactNumber || "");
+        setProfileImagePreview(u.profileImage ? assetUrl(u.profileImage) : null);
         if (u.sellerProfile) {
           setSellerBio(u.sellerProfile.description || "");
+          setStoreImagePreview(u.sellerProfile.storeImage ? assetUrl(u.sellerProfile.storeImage) : null);
         }
       })
       .catch(() => router.replace("/login"))
@@ -148,6 +163,44 @@ export default function ProfilePage() {
     }
   }
 
+  function handleProfileImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setGlobalError("Profile photo must be 10MB or smaller.");
+      return;
+    }
+    setProfileImageFile(file);
+    setProfileImagePreview(URL.createObjectURL(file));
+    setRemoveProfileImage(false);
+    setGlobalError(null);
+  }
+
+  function handleProfileImageRemove() {
+    setProfileImageFile(null);
+    setProfileImagePreview(null);
+    setRemoveProfileImage(true);
+  }
+
+  function handleStoreImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setGlobalError("Store image must be 10MB or smaller.");
+      return;
+    }
+    setStoreImageFile(file);
+    setStoreImagePreview(URL.createObjectURL(file));
+    setRemoveStoreImage(false);
+    setGlobalError(null);
+  }
+
+  function handleStoreImageRemove() {
+    setStoreImageFile(null);
+    setStoreImagePreview(null);
+    setRemoveStoreImage(true);
+  }
+
   async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
     if (!fullName.trim()) {
@@ -159,12 +212,39 @@ export default function ProfilePage() {
     setSavingProfile(true);
 
     try {
-      const res = await updateProfile({
+      const payload: {
+        fullName: string;
+        contactNumber: string;
+        profileImage?: File | string | null;
+        storeImage?: File | string | null;
+      } = {
         fullName: fullName.trim(),
         contactNumber: contactNumber.trim(),
-      });
+      };
+
+      if (profileImageFile) {
+        payload.profileImage = profileImageFile;
+      } else if (removeProfileImage) {
+        payload.profileImage = null;
+      }
+
+      if (storeImageFile) {
+        payload.storeImage = storeImageFile;
+      } else if (removeStoreImage) {
+        payload.storeImage = null;
+      }
+
+      const res = await updateProfile(payload);
       setUser(res.user);
-      setGlobalSuccess("Profile details updated successfully!");
+      setProfileImageFile(null);
+      setStoreImageFile(null);
+      setRemoveProfileImage(false);
+      setRemoveStoreImage(false);
+      setProfileImagePreview(res.user.profileImage ? assetUrl(res.user.profileImage) : null);
+      if (res.user.sellerProfile?.storeImage) {
+        setStoreImagePreview(assetUrl(res.user.sellerProfile.storeImage));
+      }
+      setGlobalSuccess("Profile details and visual identity updated successfully!");
       setTimeout(() => setGlobalSuccess(null), 4000);
     } catch (err) {
       setGlobalError(
@@ -240,11 +320,29 @@ export default function ProfilePage() {
     setSavingSeller(true);
 
     try {
-      const res = await updateProfile({
+      const payload: {
+        description: string;
+        storeImage?: File | string | null;
+      } = {
         description: sellerBio.trim(),
-      });
+      };
+
+      if (storeImageFile) {
+        payload.storeImage = storeImageFile;
+      } else if (removeStoreImage) {
+        payload.storeImage = null;
+      }
+
+      const res = await updateProfile(payload);
       setUser(res.user);
-      setGlobalSuccess("Store profile updated successfully!");
+      setStoreImageFile(null);
+      setRemoveStoreImage(false);
+      if (res.user.sellerProfile?.storeImage) {
+        setStoreImagePreview(assetUrl(res.user.sellerProfile.storeImage));
+      } else {
+        setStoreImagePreview(null);
+      }
+      setGlobalSuccess("Store profile and image updated successfully!");
       setTimeout(() => setGlobalSuccess(null), 4000);
     } catch (err) {
       setGlobalError(
@@ -293,11 +391,36 @@ export default function ProfilePage() {
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           {/* Left: Avatar, Name & Metadata */}
           <div className="flex items-center gap-4 sm:gap-5">
-            <div className="relative">
-              <div className="h-18 w-18 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-primary via-primary-dark to-accent flex items-center justify-center text-white text-2xl sm:text-3xl font-black shadow-glow shrink-0">
-                {initials}
+            <div className="relative group">
+              <div className="h-18 w-18 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-primary via-primary-dark to-accent flex items-center justify-center text-white text-2xl sm:text-3xl font-black shadow-glow shrink-0 overflow-hidden">
+                {profileImagePreview || user.profileImage ? (
+                  <img
+                    src={profileImagePreview || assetUrl(user.profileImage!)}
+                    alt={user.fullName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  initials
+                )}
               </div>
-              <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-success border-2 border-white flex items-center justify-center" title="Active Account">
+              <label
+                htmlFor="quick-avatar-upload"
+                className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                title="Change Profile Photo"
+              >
+                <Camera className="h-6 w-6" />
+                <input
+                  id="quick-avatar-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="sr-only"
+                  onChange={(e) => {
+                    handleProfileImageSelect(e);
+                    setActiveTab("profile");
+                  }}
+                />
+              </label>
+              <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-success border-2 border-white flex items-center justify-center shadow-xs" title="Active Account">
                 <CheckCircle2 className="h-3 w-3 text-white" />
               </span>
             </div>
@@ -308,9 +431,17 @@ export default function ProfilePage() {
                   {user.fullName}
                 </h1>
                 {isSeller && user.sellerProfile?.approvalStatus === "approved" && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-success-soft border border-success/20 px-2.5 py-0.5 text-[11px] font-bold text-success">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    Verified Merchant
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft border border-success/20 px-2.5 py-0.5 text-[11px] font-bold text-success">
+                    {storeImagePreview || user.sellerProfile?.storeImage ? (
+                      <img
+                        src={storeImagePreview || assetUrl(user.sellerProfile!.storeImage!)}
+                        alt="Store"
+                        className="h-3.5 w-3.5 rounded-full object-cover border border-success/40"
+                      />
+                    ) : (
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                    )}
+                    <span>{user.sellerProfile?.storeName || "Verified Merchant"}</span>
                   </span>
                 )}
               </div>
@@ -497,6 +628,131 @@ export default function ProfilePage() {
               </div>
 
               <form onSubmit={handleSaveProfile} className="space-y-5">
+                {/* Profile Photo (Optional) & Storefront Image (Optional) */}
+                <div className="rounded-2xl border border-line bg-sunken/40 p-4 sm:p-5 space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Camera className="h-4 w-4 text-primary" />
+                      <h3 className="text-xs font-bold text-ink uppercase tracking-wider">
+                        Profile &amp; Visual Identity
+                      </h3>
+                    </div>
+                    <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                      Optional
+                    </span>
+                  </div>
+
+                  <div className={`grid grid-cols-1 ${isSeller ? "sm:grid-cols-2" : ""} gap-4`}>
+                    {/* User Profile Photo */}
+                    <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-surface border border-line shadow-xs">
+                      <div className="relative shrink-0">
+                        <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary via-primary-dark to-accent flex items-center justify-center text-white text-xl font-black shadow-soft overflow-hidden">
+                          {profileImagePreview ? (
+                            <img
+                              src={profileImagePreview}
+                              alt="Profile Preview"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            initials
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-ink">Personal Avatar</span>
+                          <span className="text-[10px] text-muted">Max 10MB</span>
+                        </div>
+                        <p className="text-[11px] text-muted leading-tight">
+                          Visible on your deals, negotiation threads, and chat messages.
+                        </p>
+                        <div className="flex items-center gap-2 pt-1">
+                          <label
+                            htmlFor="profile-image-input-main"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-line bg-sunken text-[11px] font-bold text-ink hover:text-primary hover:border-primary/40 cursor-pointer transition-colors shadow-xs"
+                          >
+                            <Upload className="h-3 w-3" />
+                            {profileImagePreview ? "Change Photo" : "Upload Photo"}
+                            <input
+                              id="profile-image-input-main"
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp,image/gif"
+                              className="sr-only"
+                              onChange={handleProfileImageSelect}
+                            />
+                          </label>
+                          {profileImagePreview && (
+                            <button
+                              type="button"
+                              onClick={handleProfileImageRemove}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-danger/20 text-danger text-[11px] font-semibold hover:bg-danger-soft transition-colors"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Merchant Store Logo / Image (shown if user has a store) */}
+                    {isSeller && (
+                      <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-surface border border-line shadow-xs">
+                        <div className="relative shrink-0">
+                          <div className="h-16 w-16 rounded-2xl bg-sunken flex items-center justify-center text-primary border border-line shadow-soft overflow-hidden">
+                            {storeImagePreview ? (
+                              <img
+                                src={storeImagePreview}
+                                alt="Store Preview"
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <Store className="h-7 w-7 text-primary/60" />
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-ink">Store Logo / Image</span>
+                            <span className="text-[10px] text-muted">Optional</span>
+                          </div>
+                          <p className="text-[11px] text-muted leading-tight">
+                            Displayed on your public storefront and product listings.
+                          </p>
+                          <div className="flex items-center gap-2 pt-1">
+                            <label
+                              htmlFor="store-image-input-profile"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-line bg-sunken text-[11px] font-bold text-ink hover:text-primary hover:border-primary/40 cursor-pointer transition-colors shadow-xs"
+                            >
+                              <Upload className="h-3 w-3" />
+                              {storeImagePreview ? "Change Logo" : "Upload Logo"}
+                              <input
+                                id="store-image-input-profile"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,image/gif"
+                                className="sr-only"
+                                onChange={handleStoreImageSelect}
+                              />
+                            </label>
+                            {storeImagePreview && (
+                              <button
+                                type="button"
+                                onClick={handleStoreImageRemove}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-danger/20 text-danger text-[11px] font-semibold hover:bg-danger-soft transition-colors"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-ink uppercase tracking-wider">
@@ -773,6 +1029,68 @@ export default function ProfilePage() {
               </div>
 
               <form onSubmit={handleSaveSeller} className="space-y-5">
+                {/* Storefront Brand Logo / Photo */}
+                <div className="rounded-2xl border border-line bg-sunken/40 p-4 sm:p-5 space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Store className="h-4 w-4 text-primary" />
+                      <h3 className="text-xs font-bold text-ink uppercase tracking-wider">
+                        Storefront Brand Logo / Photo
+                      </h3>
+                    </div>
+                    <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                      Optional
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-start gap-4 p-3.5 rounded-2xl bg-surface border border-line shadow-xs">
+                    <div className="h-20 w-20 rounded-2xl bg-sunken flex items-center justify-center text-primary border border-line shadow-soft overflow-hidden shrink-0">
+                      {storeImagePreview ? (
+                        <img
+                          src={storeImagePreview}
+                          alt="Store Logo"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Store className="h-9 w-9 text-primary/60" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-1.5 min-w-0">
+                      <span className="text-xs font-bold text-ink block">Public Storefront Logo</span>
+                      <p className="text-[11px] sm:text-xs text-muted leading-relaxed">
+                        Add a distinctive store logo or workshop image. High-quality visuals increase customer trust and conversion on accepted Price Am bids.
+                      </p>
+                      <div className="flex items-center gap-2 pt-1">
+                        <label
+                          htmlFor="store-image-input-tab"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-line bg-sunken text-xs font-bold text-ink hover:text-primary hover:border-primary/40 cursor-pointer transition-colors shadow-xs"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                          {storeImagePreview ? "Change Logo" : "Upload Store Logo"}
+                          <input
+                            id="store-image-input-tab"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            className="sr-only"
+                            onChange={handleStoreImageSelect}
+                          />
+                        </label>
+                        {storeImagePreview && (
+                          <button
+                            type="button"
+                            onClick={handleStoreImageRemove}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-danger/20 text-danger text-xs font-semibold hover:bg-danger-soft transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-ink uppercase tracking-wider">
                     Store Bio / Tagline

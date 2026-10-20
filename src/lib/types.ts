@@ -5,6 +5,7 @@ export type Role = "buyer" | "seller" | "admin";
 export interface SellerProfile {
   storeName?: string;
   storeSlug?: string;
+  storeImage?: string;
   description?: string;
   payoutDetails?: {
     bankName?: string;
@@ -23,6 +24,7 @@ export interface User {
   fullName: string;
   email: string;
   contactNumber: string;
+  profileImage?: string;
   roles: Role[];
   activeRole: Role;
   sellerProfile: SellerProfile | null;

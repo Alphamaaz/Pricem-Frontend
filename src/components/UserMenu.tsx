@@ -11,7 +11,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, LayoutDashboard, LogOut, MessageCircle, Store, User as UserIcon } from "lucide-react";
 import { getMe, logout } from "@/lib/auth";
-import { tokenStore } from "@/lib/api";
+import { assetUrl, tokenStore } from "@/lib/api";
 import type { User } from "@/lib/types";
 
 function subscribeStorage(onStoreChange: () => void) {
@@ -94,8 +94,16 @@ export function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-full pl-1.5 pr-2.5 h-9 hover:bg-sunken transition-colors"
       >
-        <span className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
-          {initial}
+        <span className="flex h-6.5 w-6.5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white overflow-hidden shrink-0">
+          {user.profileImage ? (
+            <img
+              src={assetUrl(user.profileImage)}
+              alt={user.fullName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            initial
+          )}
         </span>
         <span className="hidden sm:block text-sm font-medium text-ink max-w-24 truncate">
           {user.fullName.split(" ")[0]}
