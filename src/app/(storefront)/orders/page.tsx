@@ -27,34 +27,9 @@ import { getOrderConversation } from "@/lib/chat";
 
 function getStatusBadge(status: OrderStatus) {
   switch (status) {
-    case "pending_payment":
-      return {
-        label: "Awaiting fulfilment",
-        className: "bg-warning/15 text-ink border-warning/30",
-        icon: Clock,
-      };
-    case "paid":
-    case "processing":
-      return {
-        label: "Processing",
-        className: "bg-primary-soft text-primary border-primary/20",
-        icon: Package,
-      };
-    case "shipped":
-      return {
-        label: "In Transit / Shipped",
-        className: "bg-accent/20 text-ink border-accent/30",
-        icon: Truck,
-      };
-    case "delivered":
-      return {
-        label: "Delivered",
-        className: "bg-success/15 text-success border-success/30",
-        icon: PackageCheck,
-      };
     case "completed":
       return {
-        label: "Completed",
+        label: "Deal Completed 🎉",
         className: "bg-success/20 text-success border-success/40",
         icon: CheckCircle2,
       };
@@ -66,9 +41,9 @@ function getStatusBadge(status: OrderStatus) {
       };
     default:
       return {
-        label: String(status).replace(/_/g, " "),
-        className: "bg-sunken text-muted border-line",
-        icon: Clock,
+        label: "Deal in Progress",
+        className: "bg-primary-soft text-primary border-primary/20",
+        icon: Handshake,
       };
   }
 }
