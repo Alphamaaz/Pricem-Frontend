@@ -88,7 +88,7 @@ export function ProductQuestions({
   }
 
   return (
-    <section className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-soft">
+    <section className="product-questions rounded-3xl border border-line bg-surface p-6 shadow-soft">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-6">
         <div>

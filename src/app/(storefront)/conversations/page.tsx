@@ -7,6 +7,7 @@ import {
   ArrowRight,
   MessageCircle,
   Package,
+  Search,
   Store,
 } from "lucide-react";
 import { listConversations, type Conversation } from "@/lib/chat";
@@ -37,6 +38,7 @@ export default function ConversationsPage() {
   const router = useRouter();
   const [items, setItems] = useState<Conversation[] | null>(null);
   const [filter, setFilter] = useState<"all" | "order" | "inquiry">("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!tokenStore.get()) {
@@ -72,13 +74,16 @@ export default function ConversationsPage() {
   const filteredItems = items.filter((c) => {
     if (filter === "order" && c.scope !== "order") return false;
     if (filter === "inquiry" && c.scope !== "listing") return false;
+    const product = typeof c.product === "string" ? null : c.product;
+    if (search.trim() && !`${product?.title || ""} ${c.lastMessagePreview || ""}`.toLowerCase().includes(search.trim().toLowerCase())) return false;
     return true;
   });
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="conversations-page mx-auto max-w-4xl space-y-6">
+      <label className="conversation-mobile-search md:hidden"><Search /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search in messages…" /></label>
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="conversation-desktop-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-soft text-primary">
@@ -120,7 +125,7 @@ export default function ConversationsPage() {
       </div>
 
       {/* Conversations List */}
-      <div className="rounded-3xl border border-line bg-surface shadow-soft divide-y divide-line overflow-hidden">
+      <div className="conversation-list rounded-3xl border border-line bg-surface shadow-soft divide-y divide-line overflow-hidden">
         {filteredItems.map((conversation) => {
           const product =
             typeof conversation.product === "string" ? null : conversation.product;

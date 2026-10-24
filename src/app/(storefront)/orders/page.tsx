@@ -4,17 +4,15 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Clock,
   Handshake,
   MessageCircle,
   Package,
-  PackageCheck,
   Search,
   ShoppingBag,
   Store,
-  Truck,
   XCircle,
 } from "lucide-react";
 import { getMe } from "@/lib/auth";
@@ -161,9 +159,10 @@ function OrdersList() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="orders-page max-w-4xl mx-auto space-y-6">
+      <div className="orders-mobile-header md:hidden"><button type="button" onClick={() => router.back()} aria-label="Go back"><ArrowLeft /></button><h1>My Orders</h1><span /></div>
       {/* Header & Role Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="orders-desktop-header flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
             Orders & Deals
@@ -214,7 +213,7 @@ function OrdersList() {
       {error && <Alert kind="error">{error}</Alert>}
 
       {/* KPI Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="orders-stats grid grid-cols-2 sm:grid-cols-4 gap-3">
         <button
           type="button"
           onClick={() => setFilter("all")}
@@ -269,7 +268,7 @@ function OrdersList() {
       </div>
 
       {/* Search Input */}
-      <div className="relative">
+      <div className="orders-search relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
         <input
           type="text"

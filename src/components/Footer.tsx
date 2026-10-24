@@ -27,11 +27,21 @@ const COLUMNS = [
       { href: "/profile", label: "Manage profile" },
     ],
   },
+  {
+    title: "Information",
+    links: [
+      { href: "/about", label: "About us" },
+      { href: "/contact", label: "Contact us" },
+      { href: "/privacy", label: "Privacy policy" },
+      { href: "/terms", label: "Terms & conditions" },
+      { href: "/cookies", label: "Cookie policy" },
+    ],
+  },
 ];
 
 export function Footer() {
   return (
-    <footer className="mt-auto border-t border-line bg-surface">
+    <footer className="mt-auto hidden border-t border-line bg-surface sm:block">
       {/* Trust bar */}
       <div className="border-b border-line bg-sunken/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-5 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm font-medium text-body">
@@ -50,7 +60,7 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
         <div className="lg:col-span-2">
           <Logo />
           <p className="mt-3 text-sm text-muted max-w-xs leading-relaxed">

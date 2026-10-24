@@ -7,11 +7,17 @@ import {
   AlertCircle,
   ArrowUpRight,
   BarChart3,
+  Bell,
+  CalendarDays,
   CheckCircle2,
   Copy,
   DollarSign,
   Eye,
   Handshake,
+  HelpCircle,
+  Home,
+  Menu,
+  MessageCircle,
   MousePointerClick,
   Package,
   Plus,
@@ -20,12 +26,156 @@ import {
   Store,
   TrendingUp,
   Truck,
+  UserRound,
+  X,
 } from "lucide-react";
 import { getMe } from "@/lib/auth";
 import { getSellerAnalytics, type SellerAnalytics } from "@/lib/orders";
 import { ApiRequestError, assetUrl, tokenStore } from "@/lib/api";
 import { Alert, Button } from "@/components/ui";
 import type { User } from "@/lib/types";
+
+function MobileSellerDashboard({
+  analytics,
+  error,
+  user,
+  refreshing,
+  onRefresh,
+}: {
+  analytics: SellerAnalytics | null;
+  error: string | null;
+  user: User | null;
+  refreshing: boolean;
+  onRefresh: () => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const revenue = analytics?.financials?.grossRevenue || 0;
+  const orders = analytics?.orders?.total || 0;
+  const views = analytics?.traffic?.totalClicks || 0;
+  const listings = analytics?.traffic?.totalListings || 0;
+  const conversion = analytics?.traffic?.conversionRate || 0;
+  const series = analytics?.chartSeries?.slice(-7) || [];
+  const peak = Math.max(...series.map((item) => item.revenue), 1);
+  const fullName = user?.fullName || "PriceAm Seller";
+  const initials = fullName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  const memberSince = user?.createdAt
+    ? new Intl.DateTimeFormat("en-NG", { month: "short", year: "numeric" }).format(new Date(user.createdAt))
+    : "PriceAm launch";
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [menuOpen]);
+
+  const metrics = [
+    { label: "Total orders", value: orders.toLocaleString(), icon: ShoppingBag, tone: "orange" },
+    { label: "Product views", value: views.toLocaleString(), icon: Eye, tone: "blue" },
+    { label: "Active listings", value: listings.toLocaleString(), icon: Package, tone: "purple" },
+    { label: "Conversion rate", value: `${conversion}%`, icon: BarChart3, tone: "green" },
+  ];
+
+  return (
+    <main className="seller-mobile-dashboard md:hidden">
+      <header className="seller-mobile-header">
+        <button type="button" className="seller-mobile-header-button" aria-label="Open seller menu" onClick={() => setMenuOpen(true)}>
+            <Menu />
+        </button>
+        <div className="min-w-0 flex-1">
+          <h1>Seller Dashboard</h1>
+          <p>Here is how your store is doing</p>
+        </div>
+        <Link href="/conversations" className="seller-mobile-header-button relative" aria-label="Open notifications">
+          <Bell />
+          <span className="seller-notification-dot" />
+        </Link>
+      </header>
+
+      {menuOpen && (
+        <div className="seller-drawer-layer" role="dialog" aria-modal="true" aria-label="Seller menu">
+          <button className="seller-drawer-backdrop" type="button" aria-label="Close seller menu" onClick={() => setMenuOpen(false)} />
+          <aside className="seller-drawer">
+            <button type="button" className="seller-drawer-close" aria-label="Close seller menu" onClick={() => setMenuOpen(false)}><X /></button>
+            <div className="seller-drawer-profile">
+              {user?.profileImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={assetUrl(user.profileImage)} alt="" />
+              ) : <span>{initials}</span>}
+              <div>
+                <h2>{fullName}</h2>
+                <strong>Seller</strong>
+                <p>Member since {memberSince}</p>
+              </div>
+            </div>
+            <nav className="seller-drawer-nav" aria-label="Seller menu links">
+              <Link href="/seller" className="is-active" onClick={() => setMenuOpen(false)}><Home /><span>Dashboard</span></Link>
+              <Link href="/profile" onClick={() => setMenuOpen(false)}><UserRound /><span>Profile</span></Link>
+              <Link href="/conversations" onClick={() => setMenuOpen(false)}><MessageCircle /><span>Messages</span></Link>
+              <Link href="/offers?tab=seller" onClick={() => setMenuOpen(false)}><Handshake /><span>My Offers</span></Link>
+              <Link href="/seller/products" onClick={() => setMenuOpen(false)}><Store /><span>My Shop</span></Link>
+              <Link href="/orders" onClick={() => setMenuOpen(false)}><Truck /><span>Orders</span></Link>
+              <Link href="/conversations" onClick={() => setMenuOpen(false)}><Bell /><span>Notifications</span></Link>
+              <Link href="/conversations?support=true" onClick={() => setMenuOpen(false)}><HelpCircle /><span>Help</span></Link>
+            </nav>
+          </aside>
+        </div>
+      )}
+
+      {error && <Alert kind="error">{error}</Alert>}
+
+      <button type="button" onClick={onRefresh} className="seller-revenue-card" disabled={refreshing}>
+        <span className="seller-revenue-label">Total revenue</span>
+        <span className="seller-revenue-period"><CalendarDays /> All time</span>
+        <strong>₦{revenue.toLocaleString()}</strong>
+        <span className="seller-revenue-note"><TrendingUp /> {refreshing ? "Refreshing analytics…" : "Tap to refresh live analytics"}</span>
+      </button>
+
+      <section>
+        <h2 className="seller-mobile-section-title">Performance overview</h2>
+        <div className="seller-mobile-metrics">
+          {metrics.map(({ label, value, icon: Icon, tone }) => (
+            <article key={label} className="seller-mobile-metric">
+              <span className={`seller-mobile-metric-icon is-${tone}`}><Icon /></span>
+              <span className="seller-mobile-live">Live</span>
+              <strong>{value}</strong>
+              <p>{label}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="seller-mobile-sales">
+        <div className="seller-mobile-sales-heading">
+          <h2>Sales overview</h2>
+          <span>Last 7 days</span>
+        </div>
+        {series.length ? (
+          <div className="seller-mobile-chart" aria-label="Revenue for the last seven days">
+            {series.map((item) => (
+              <div className="seller-mobile-chart-column" key={item.label}>
+                <span style={{ height: `${Math.max(10, (item.revenue / peak) * 100)}%` }} />
+                <small>{item.label.split(",")[0].slice(0, 3)}</small>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="seller-mobile-chart-empty">
+            <BarChart3 />
+            <p>Your sales activity will appear here.</p>
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
 
 function SellerDashboardContent() {
   const router = useRouter();
@@ -116,18 +266,21 @@ function SellerDashboardContent() {
 
   if (loading && !analytics) {
     return (
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-6">
-        <div className="h-12 w-64 rounded-2xl bg-sunken animate-pulse" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 rounded-3xl bg-sunken animate-pulse" />
-          ))}
-        </div>
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-96 rounded-3xl bg-sunken animate-pulse" />
-          <div className="h-96 rounded-3xl bg-sunken animate-pulse" />
-        </div>
-      </main>
+      <>
+        <main className="seller-mobile-dashboard space-y-5 md:hidden" aria-label="Loading seller dashboard">
+          <div className="flex items-center gap-3">
+            <div className="h-[3.25rem] w-[3.25rem] animate-pulse rounded-2xl bg-sunken" />
+            <div className="flex-1 space-y-2"><div className="h-6 w-48 animate-pulse rounded-lg bg-sunken" /><div className="h-4 w-40 animate-pulse rounded-lg bg-sunken" /></div>
+          </div>
+          <div className="h-44 animate-pulse rounded-[1.8rem] bg-primary-darker/80" />
+          <div className="grid grid-cols-2 gap-3">{[1, 2, 3, 4].map((i) => <div key={i} className="h-36 animate-pulse rounded-3xl bg-surface" />)}</div>
+        </main>
+        <main className="mx-auto hidden max-w-7xl space-y-6 px-4 py-10 sm:px-6 md:block">
+          <div className="h-12 w-64 animate-pulse rounded-2xl bg-sunken" />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">{[1, 2, 3, 4].map((i) => <div key={i} className="h-32 animate-pulse rounded-3xl bg-sunken" />)}</div>
+          <div className="grid gap-6 lg:grid-cols-3"><div className="h-96 animate-pulse rounded-3xl bg-sunken lg:col-span-2" /><div className="h-96 animate-pulse rounded-3xl bg-sunken" /></div>
+        </main>
+      </>
     );
   }
 
@@ -143,7 +296,9 @@ function SellerDashboardContent() {
   const hasUrgentActions = pendingDispatch > 0 || pendingOffers > 0 || outOfStock > 0;
 
   return (
-    <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8">
+    <>
+      <MobileSellerDashboard analytics={analytics} error={error} user={user} refreshing={refreshing} onRefresh={() => loadData(false)} />
+    <main className="hidden w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-8 md:block">
       {/* Top Header & Store Card */}
       <section className="rounded-3xl border border-line bg-gradient-to-r from-surface via-primary-soft/20 to-surface p-6 sm:p-8 shadow-soft">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
@@ -828,6 +983,7 @@ function SellerDashboardContent() {
         )}
       </section>
     </main>
+    </>
   );
 }
 

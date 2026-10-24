@@ -5,6 +5,8 @@ export interface ConversationProduct {
   title: string;
   coverImage?: { url: string; alt?: string };
   status?: string;
+  price?: number;
+  location?: { state?: string; city?: string };
 }
 
 export interface Conversation {

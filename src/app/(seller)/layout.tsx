@@ -7,8 +7,10 @@ export default function SellerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-cream">
-      <Navbar />
+    <div className="seller-layout min-h-screen bg-cream">
+      <div className="seller-desktop-navbar">
+        <Navbar />
+      </div>
       <div className="seller-shell">
         <SellerWorkspaceNav />
         <div className="min-w-0 flex-1 pb-20 lg:pb-0">{children}</div>

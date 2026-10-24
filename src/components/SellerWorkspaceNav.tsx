@@ -5,13 +5,16 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   ChevronRight,
+  CirclePlus,
   Handshake,
+  Home,
   LayoutDashboard,
   MessageCircle,
   Package,
   Plus,
   Settings,
   Store,
+  UserRound,
 } from "lucide-react";
 
 const links = [
@@ -66,17 +69,27 @@ export function SellerWorkspaceNav() {
         </Link>
       </aside>
 
-      <nav className="seller-mobile-nav lg:hidden" aria-label="Seller navigation">
-        {links.slice(0, 4).map(({ href, label, icon: Icon, exact }) => {
-          const cleanHref = href.split("?")[0];
-          const active = exact ? pathname === cleanHref : pathname.startsWith(cleanHref);
-          return (
-            <Link key={href} href={href} className={active ? "is-active" : ""}>
-              <Icon className="h-4 w-4" />
-              <span>{label.replace("Price Am ", "")}</span>
-            </Link>
-          );
-        })}
+      <nav className="seller-mobile-nav md:hidden" aria-label="Seller navigation">
+        <Link href="/seller" className={pathname === "/seller" ? "is-active" : ""}>
+          <LayoutDashboard />
+          <span>Dashboard</span>
+        </Link>
+        <Link href="/conversations" className={pathname.startsWith("/conversations") ? "is-active" : ""}>
+          <MessageCircle />
+          <span>Chat</span>
+        </Link>
+        <Link href="/" className="seller-mobile-switch">
+          <span className="seller-mobile-switch-icon"><Home /></span>
+          <span>Switch to Buy</span>
+        </Link>
+        <Link href="/seller/products/new" className={pathname === "/seller/products/new" ? "is-active" : ""}>
+          <CirclePlus />
+          <span>Sell</span>
+        </Link>
+        <Link href="/profile" className={pathname.startsWith("/profile") ? "is-active" : ""}>
+          <UserRound />
+          <span>Profile</span>
+        </Link>
       </nav>
     </>
   );

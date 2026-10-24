@@ -121,6 +121,11 @@ export async function listProducts(params: ListProductsParams = {}) {
   return api<ProductListResponse>(`/products${toQuery(params)}`);
 }
 
+/** Client-side public product detail. */
+export async function getProduct(id: string) {
+  return api<{ product: Product }>(`/products/${id}`);
+}
+
 /**
  * Server-side list for RSC pages — plain fetch, no auth needed.
  * Never throws: storefront pages should render even if the API is down.

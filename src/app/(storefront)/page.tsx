@@ -7,7 +7,7 @@ export default async function HomePage() {
   const { products, total } = await listProductsServer({ limit: 36, sort: "featured" });
   return (
     <div className="space-y-3 sm:space-y-4">
-      <section className="overflow-hidden rounded-2xl border border-line bg-surface shadow-soft">
+      <section className="hidden overflow-hidden rounded-2xl border border-line bg-surface shadow-soft sm:block">
         <div className="flex min-h-[148px] flex-col justify-between gap-5 p-5 sm:min-h-[160px] sm:flex-row sm:items-center sm:p-6 lg:px-8">
           <div className="min-w-0">
             <div className="mb-2 flex items-center gap-4 text-[11px] font-bold text-muted">

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
+  ArrowLeft,
   Bell,
   Camera,
   CheckCircle2,
@@ -15,6 +16,7 @@ import {
   Lock,
   LogOut,
   Mail,
+  Pencil,
   Phone,
   Save,
   ShieldCheck,
@@ -57,6 +59,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+  const [mobileEditing, setMobileEditing] = useState(false);
 
   // Mode switching state
   const [switchingRole, setSwitchingRole] = useState(false);
@@ -215,11 +218,13 @@ export default function ProfilePage() {
       const payload: {
         fullName: string;
         contactNumber: string;
+        description?: string;
         profileImage?: File | string | null;
         storeImage?: File | string | null;
       } = {
         fullName: fullName.trim(),
         contactNumber: contactNumber.trim(),
+        ...(user?.roles.includes("seller") ? { description: sellerBio.trim() } : {}),
       };
 
       if (profileImageFile) {
@@ -245,6 +250,7 @@ export default function ProfilePage() {
         setStoreImagePreview(assetUrl(res.user.sellerProfile.storeImage));
       }
       setGlobalSuccess("Profile details and visual identity updated successfully!");
+      setMobileEditing(false);
       setTimeout(() => setGlobalSuccess(null), 4000);
     } catch (err) {
       setGlobalError(
@@ -378,7 +384,54 @@ export default function ProfilePage() {
     .toUpperCase();
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <>
+      <main className="mobile-account-page md:hidden">
+        {!mobileEditing ? (
+          <>
+            <section className="mobile-account-identity">
+              <div className="mobile-account-avatar">{profileImagePreview || user.profileImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profileImagePreview || assetUrl(user.profileImage!)} alt={user.fullName} />
+              ) : initials}<span><CheckCircle2 /></span></div>
+              <h1>{user.fullName}</h1>
+              <strong>{user.activeRole === "seller" ? "Seller" : "Buyer"}</strong>
+              <p>Member since {new Intl.DateTimeFormat("en-NG", { month: "long", year: "numeric" }).format(new Date(user.createdAt))}</p>
+            </section>
+            {globalError && <p className="mobile-account-notice is-error">{globalError}</p>}
+            {globalSuccess && <p className="mobile-account-notice">{globalSuccess}</p>}
+            <section className="mobile-account-management">
+              <h2>Account Management</h2>
+              <div>
+                <button type="button" onClick={() => setMobileEditing(true)}><span><Pencil /></span><span><strong>Update Profile</strong><small>Name, phone and photos</small></span><ChevronRight /></button>
+                <button type="button" onClick={() => setMobileEditing(true)}><span><Mail /></span><span><strong>{user.email}</strong><small>{user.emailVerified ? "Email verified" : "Email verification required"}</small></span><ChevronRight /></button>
+              </div>
+              <button type="button" className="mobile-account-logout" onClick={handleSignOut}><span><LogOut /></span><strong>Logout</strong></button>
+            </section>
+            <div className="mobile-account-links"><Link href="/contact">Help Center</Link><span /><Link href="/terms">Terms of Service</Link></div>
+          </>
+        ) : (
+          <section className="mobile-profile-edit">
+            <header><button type="button" onClick={() => setMobileEditing(false)} aria-label="Back to profile"><ArrowLeft /></button><h1>Update Profile</h1><span /></header>
+            {globalError && <p className="mobile-account-notice is-error">{globalError}</p>}
+            <form onSubmit={handleSaveProfile}>
+              <label className="mobile-profile-photo"><span>{profileImagePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profileImagePreview} alt="Profile preview" />
+              ) : <ImageIcon />}</span><strong>Profile photo</strong><em>Choose</em><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleProfileImageSelect} /></label>
+              {isSeller && <label className="mobile-profile-photo"><span>{storeImagePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={storeImagePreview} alt="Store preview" />
+              ) : <ImageIcon />}</span><strong>Store image</strong><em>Choose</em><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={handleStoreImageSelect} /></label>}
+              <label className="mobile-profile-field"><span>Full name</span><div><UserIcon /><input value={fullName} onChange={(event) => setFullName(event.target.value)} required /></div></label>
+              <label className="mobile-profile-field"><span>Contact number</span><div><Phone /><input value={contactNumber} onChange={(event) => setContactNumber(event.target.value)} inputMode="tel" /></div></label>
+              {isSeller && <label className="mobile-profile-field is-area"><span>Store description</span><textarea value={sellerBio} onChange={(event) => setSellerBio(event.target.value)} placeholder="Tell buyers about your store" /></label>}
+              <p className="mobile-profile-email">Email: {user.email}</p>
+              <button type="submit" className="mobile-profile-save" disabled={savingProfile}>{savingProfile ? "Saving…" : "Save Changes"}</button>
+            </form>
+          </section>
+        )}
+      </main>
+    <div className="hidden max-w-5xl mx-auto space-y-6 md:block">
       {/* =================================================================== */}
       {/* 1. TOP HERO & IDENTITY PROFILE BANNER                              */}
       {/* =================================================================== */}
@@ -1207,5 +1260,6 @@ export default function ProfilePage() {
         </main>
       </div>
     </div>
+    </>
   );
 }

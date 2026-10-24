@@ -6,6 +6,7 @@ import {
   BookOpen,
   Check,
   ChevronDown,
+  Dumbbell,
   Filter,
   Gamepad2,
   Handshake,
@@ -46,6 +47,19 @@ const CATEGORY_ICON_MAP: Record<string, React.ComponentType<{ className?: string
   BookOpen,
   Package,
 };
+
+const MOBILE_CATEGORY_ITEMS = [
+  { id: "electronics", label: "Electronics", icon: Headphones, color: "bg-[#ffe7a6]" },
+  { id: "fashion", label: "Fashion", icon: Shirt, color: "bg-[#ffdccc]" },
+  { id: "home", label: "Home", icon: HomeIcon, color: "bg-[#d7e8ff]" },
+  { id: "gaming", label: "Gaming", icon: Gamepad2, color: "bg-[#e2e4e9]" },
+  { id: "books", label: "Books", icon: BookOpen, color: "bg-[#ffedb4]" },
+  { id: "kids-toys", label: "Kids & Toys", icon: Baby, color: "bg-[#ffe0a8]" },
+  { id: "equipment-tools", label: "Tools", icon: Wrench, color: "bg-[#ded7d3]" },
+  { id: "mobile-phones", label: "Phones & Tablets", icon: Smartphone, color: "bg-[#dff4e8]" },
+  { id: "beauty-skincare", label: "Beauty", icon: Sparkles, color: "bg-[#f8deea]" },
+  { id: "sports", label: "Sports", icon: Dumbbell, color: "bg-[#dff2f4]" },
+] as const;
 
 const NIGERIAN_STATES = [
   "All Nigeria",
@@ -151,6 +165,21 @@ export function MarketplaceCatalog({
   const [total, setTotal] = useState(initialTotal);
   const [loading, setLoading] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [categorySheetOpen, setCategorySheetOpen] = useState(false);
+
+  useEffect(() => {
+    if (!categorySheetOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setCategorySheetOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [categorySheetOpen]);
 
   // Fetch products based on active filters
   const fetchFilteredProducts = useCallback(async () => {
@@ -245,9 +274,129 @@ export function MarketplaceCatalog({
     (search ? 1 : 0);
 
   return (
-    <div className="space-y-3 sm:space-y-3.5" id="catalog-section">
+    <div className="space-y-5 sm:space-y-3.5" id="catalog-section">
+      <div className="space-y-7 sm:hidden">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-muted" strokeWidth={1.8} />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search for electronics, fashion..."
+            className="h-[58px] w-full rounded-full border border-line bg-surface pl-14 pr-20 text-base text-ink shadow-soft outline-none placeholder:text-muted/70 focus:border-primary"
+          />
+          <button
+            type="button"
+            onClick={() => setMobileDrawerOpen(true)}
+            aria-label="Open filters"
+            className="absolute right-1.5 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full bg-[#ffd000] text-ink shadow-soft"
+          >
+            <SlidersHorizontal className="h-5 w-5" strokeWidth={2.5} />
+            {activeFiltersCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">{activeFiltersCount}</span>}
+          </button>
+        </div>
+
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-[1.65rem] font-bold tracking-tight text-ink">Categories</h2>
+            <button
+              type="button"
+              onClick={() => setCategorySheetOpen(true)}
+              aria-haspopup="dialog"
+              className="min-h-11 rounded-lg px-2 text-base font-semibold text-primary-darker transition-colors hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              View All
+            </button>
+          </div>
+          <div className="scrollbar-none -mx-4 flex gap-4 overflow-x-auto px-4 pb-1">
+            {MOBILE_CATEGORY_ITEMS.map((cat) => {
+              const Icon = cat.icon;
+              const active = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedCategory(cat.id);
+                  }}
+                  aria-pressed={active}
+                  className="w-[78px] shrink-0 text-center"
+                >
+                  <span className={`grid h-[70px] w-[70px] place-items-center rounded-2xl ${cat.color} ${active ? "ring-2 ring-primary ring-offset-2 ring-offset-cream" : ""}`}>
+                    <Icon className="h-7 w-7 text-ink" strokeWidth={1.9} />
+                  </span>
+                  <span className="mt-2 block truncate text-[13px] font-medium text-ink">{cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+        <h2 className="text-center text-[1.65rem] font-bold tracking-tight text-ink">Products</h2>
+      </div>
+
+      {categorySheetOpen && (
+        <div
+          className="fixed inset-0 z-[80] flex items-end bg-ink/55 sm:hidden"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setCategorySheetOpen(false);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="all-categories-title"
+            className="max-h-[88dvh] w-full overflow-y-auto rounded-t-[2rem] bg-surface px-5 pb-[calc(2rem+env(safe-area-inset-bottom))] pt-3 shadow-lifted"
+          >
+            <div className="mx-auto mb-5 h-1.5 w-12 rounded-full bg-line-strong" />
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h2 id="all-categories-title" className="text-2xl font-extrabold tracking-tight text-ink">All Categories</h2>
+                <p className="mt-1 text-sm text-muted">Explore products by category</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCategorySheetOpen(false)}
+                aria-label="Close all categories"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {MOBILE_CATEGORY_ITEMS.map((cat) => {
+                const Icon = cat.icon;
+                const active = selectedCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => {
+                      setSelectedCategory(cat.id);
+                      setCategorySheetOpen(false);
+                    }}
+                    className={`flex min-w-0 items-center gap-3 rounded-2xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+                      active ? "border-primary bg-primary-soft" : "border-line bg-cream/60 hover:border-primary/40"
+                    }`}
+                  >
+                    <span className={`grid h-14 w-14 shrink-0 place-items-center rounded-xl ${cat.color}`}>
+                      <Icon className="h-6 w-6 text-primary-darker" strokeWidth={1.9} />
+                    </span>
+                    <span className="min-w-0">
+                      <strong className="block truncate text-[15px] font-bold text-ink">{cat.label}</strong>
+                      <small className="mt-0.5 block text-xs text-muted">Explore items</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        </div>
+      )}
+
       {/* High-Efficiency Catalog Action Bar */}
-      <div className="rounded-2xl border border-line bg-surface p-2 sm:p-2.5 shadow-xs flex flex-wrap items-center justify-between gap-2.5">
+      <div className="hidden rounded-2xl border border-line bg-surface p-2 shadow-xs sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-2.5 sm:p-2.5">
         {/* Search within catalog (hidden on mobile to prevent duplicate search bars) */}
         <div className="hidden md:block relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted" />
@@ -595,7 +744,7 @@ export function MarketplaceCatalog({
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-5"
+                  ? "grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3"
                   : "flex flex-col gap-4 sm:gap-6"
               }
             >

@@ -2,8 +2,8 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { Handshake, MapPin, ShieldCheck, Sparkles, Star, Store, Truck } from "lucide-react";
-import { assetUrl } from "@/lib/api";
+import { Handshake, Heart, MapPin, ShieldCheck, Sparkles, Star } from "lucide-react";
+import { assetUrl, PRODUCT_IMAGE_PLACEHOLDER } from "@/lib/api";
 import type { Product } from "@/lib/products";
 
 interface ProductCardProps {
@@ -18,10 +18,45 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
       ? `${product.location.city}, ${product.location.state}`
       : product.location.state
     : "Nigeria";
+  const listedDate = new Date(product.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short" });
+
+  const mobileCard = (
+    <article className="overflow-hidden rounded-[1.15rem] bg-surface shadow-[0_3px_12px_rgba(36,27,18,.10)] sm:hidden">
+      <Link href={`/products/${product._id}`} className="relative block aspect-[1.08/1] overflow-hidden bg-sunken">
+        <img
+          src={product.coverImage?.url ? assetUrl(product.coverImage.url) : PRODUCT_IMAGE_PLACEHOLDER}
+          alt={product.coverImage?.alt ?? product.title}
+          loading="lazy"
+          onError={(event) => {
+            if (!event.currentTarget.src.endsWith(PRODUCT_IMAGE_PLACEHOLDER)) {
+              event.currentTarget.src = PRODUCT_IMAGE_PLACEHOLDER;
+            }
+          }}
+          className="h-full w-full object-cover"
+        />
+        <span className="absolute right-2.5 top-2.5 grid h-9 w-9 place-items-center rounded-full bg-ink/45 text-white" aria-hidden>
+          <Heart className="h-5 w-5" strokeWidth={2.2} />
+        </span>
+      </Link>
+      <div className="p-3">
+        <p className="text-lg font-bold tracking-tight text-primary">₦{product.price.toLocaleString()}</p>
+        <Link href={`/products/${product._id}`} className="mt-1 block truncate text-[15px] font-medium text-ink">{product.title}</Link>
+        <p className="mt-2 flex items-center gap-1 truncate text-[11px] text-muted">
+          <MapPin className="h-3.5 w-3.5 shrink-0 fill-muted text-muted" /> {locationText}
+        </p>
+        <div className="mt-2 flex items-center justify-between text-[11px] text-muted">
+          <span className="rounded-md bg-sunken px-2 py-1 lowercase">{product.condition === "new" ? "new" : "used"}</span>
+          <span>{listedDate}</span>
+        </div>
+      </div>
+    </article>
+  );
 
   if (viewMode === "list") {
     return (
-      <article className="group rounded-2xl sm:rounded-3xl bg-surface border-2 border-emerald-500/80 hover:border-emerald-600 hover:shadow-lifted overflow-hidden transition-all duration-300 flex flex-col sm:flex-row">
+      <>
+      {mobileCard}
+      <article className="group hidden rounded-2xl border-2 border-emerald-500/80 bg-surface transition-all duration-300 hover:border-emerald-600 hover:shadow-lifted sm:flex sm:flex-row sm:rounded-3xl">
         {/* Left / Top Image Container: Full-width on mobile, fixed horizontal column on sm+ */}
         <Link
           href={`/products/${product._id}`}
@@ -142,12 +177,15 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
           </div>
         </div>
       </article>
+      </>
     );
   }
 
   // Grid view (Standard / 2-column on mobile)
   return (
-    <article className="group rounded-2xl sm:rounded-3xl bg-surface border border-line overflow-hidden transition-all duration-300 hover:shadow-lifted hover:-translate-y-1 hover:border-primary/40 h-full flex flex-col relative">
+    <>
+    {mobileCard}
+    <article className="group relative hidden h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lifted sm:flex">
       {/* Product Image Cover */}
       <Link href={`/products/${product._id}`} className="relative aspect-[4/3] bg-sunken overflow-hidden block">
         <img
@@ -260,5 +298,6 @@ export function ProductCard({ product, viewMode = "grid" }: ProductCardProps) {
         </div>
       </div>
     </article>
+    </>
   );
 }

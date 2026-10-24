@@ -13,8 +13,22 @@ export const API_URL =
 /** Origin serving static assets (product images) — API host without /api/v1 */
 export const ASSET_URL = API_URL.replace(/\/api\/v1\/?$/, "");
 
+export const PRODUCT_IMAGE_PLACEHOLDER = "/product-placeholder.svg";
+
+// A small number of legacy listings referenced third-party images that were
+// later removed. Keep those active listings useful while sellers replace the
+// original media, without coupling every image component to migration logic.
+const LEGACY_IMAGE_REPLACEMENTS: Record<string, string> = {
+  "https://images.unsplash.com/photo-1580481077195-c328a37db71a?auto=format&fit=crop&w=1200&q=85":
+    "/listing-images/ergonomic-mesh-chair.webp",
+  "https://images.unsplash.com/photo-1608248597359-561307b22d17?auto=format&fit=crop&w=1200&q=85":
+    "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1200&q=85",
+};
+
 /** Resolve backend-relative image paths (/uploads/…) to absolute URLs. */
 export function assetUrl(path: string): string {
+  const replacement = LEGACY_IMAGE_REPLACEMENTS[path];
+  if (replacement) return replacement;
   return path.startsWith("/") ? `${ASSET_URL}${path}` : path;
 }
 

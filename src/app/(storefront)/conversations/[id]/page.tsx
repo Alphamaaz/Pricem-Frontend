@@ -4,9 +4,11 @@ import Link from "next/link";
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
+  ArrowRight,
   ArrowLeft,
   CheckCircle2,
   MapPin,
+  Package,
   Phone,
   Send,
   ShieldAlert,
@@ -19,6 +21,7 @@ import { ApiRequestError, assetUrl, tokenStore } from "@/lib/api";
 import { Alert, Button } from "@/components/ui";
 import { getRealtimeSocket } from "@/lib/realtime";
 import { getMe } from "@/lib/auth";
+import { getProduct } from "@/lib/products";
 
 function eventText(message: ChatMessage) {
   const action = message.event?.action;
@@ -66,8 +69,17 @@ export default function ConversationPage() {
     }
 
     Promise.all([getConversation(params.id), getMessages(params.id), getMe()])
-      .then(([conversationResponse, messagesResponse, userResponse]) => {
-        setConversation(conversationResponse.conversation);
+      .then(async ([conversationResponse, messagesResponse, userResponse]) => {
+        let loadedConversation = conversationResponse.conversation;
+        if (typeof loadedConversation.product === "string") {
+          try {
+            const productResponse = await getProduct(loadedConversation.product);
+            loadedConversation = { ...loadedConversation, product: productResponse.product };
+          } catch {
+            // Keep the conversation usable if the listing is no longer public.
+          }
+        }
+        setConversation(loadedConversation);
         setMessages(messagesResponse.messages);
         setNextCursor(messagesResponse.nextCursor);
         setCurrentUserId(userResponse.user._id);
@@ -157,8 +169,9 @@ export default function ConversationPage() {
 
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="flex items-center justify-between mb-3">
+    <div className="chat-thread-page mx-auto max-w-3xl">
+      <header className="chat-mobile-header md:hidden"><button type="button" onClick={() => router.back()} aria-label="Back to messages"><ArrowLeft /></button><span>{(isBuyer ? "Seller" : "Buyer").charAt(0)}</span><div><strong>{isBuyer ? "Seller" : "Buyer"}</strong><small>PriceAm conversation</small></div></header>
+      <div className="chat-desktop-back flex items-center justify-between mb-3">
         <Link
           href={product ? `/products/${product._id}` : "/orders"}
           className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-primary transition-colors"
@@ -170,9 +183,9 @@ export default function ConversationPage() {
         </span>
       </div>
 
-      <section className="flex flex-col h-[calc(100dvh-9.5rem)] sm:h-[calc(100dvh-10.5rem)] min-h-[480px] max-h-[780px] overflow-hidden rounded-3xl border border-line bg-surface shadow-soft">
+      <section className="chat-workspace flex flex-col h-[calc(100dvh-9.5rem)] sm:h-[calc(100dvh-10.5rem)] min-h-[480px] max-h-[780px] overflow-hidden rounded-3xl border border-line bg-surface shadow-soft">
         {/* Workspace Banner */}
-        <header className="shrink-0 border-b border-line bg-gradient-to-r from-surface via-cream/50 to-primary-soft/30 p-4 sm:p-5">
+        <header className="chat-desktop-banner shrink-0 border-b border-line bg-gradient-to-r from-surface via-cream/50 to-primary-soft/30 p-4 sm:p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               {product?.coverImage?.url && (
@@ -202,6 +215,19 @@ export default function ConversationPage() {
                 <h1 className="mt-1 text-sm sm:text-base font-bold text-ink truncate max-w-md">
                   {product?.title ?? "Order Workspace"}
                 </h1>
+                {product && (
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+                    {typeof product.price === "number" && (
+                      <span className="font-extrabold text-primary">₦{product.price.toLocaleString()}</span>
+                    )}
+                    {(product.location?.city || product.location?.state) && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        {[product.location.city, product.location.state].filter(Boolean).join(", ")}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -267,6 +293,11 @@ export default function ConversationPage() {
             </div>
           </div>
         </header>
+
+        {product && <Link href={`/products/${product._id}`} className="chat-mobile-product md:hidden">{product.coverImage?.url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={assetUrl(product.coverImage.url)} alt={product.title} />
+        ) : <span><Package /></span>}<div><strong>{product.title}</strong><small><MapPin /> {[product.location?.city, product.location?.state].filter(Boolean).join(", ") || "Product listing"}{typeof product.price === "number" ? ` · ₦${product.price.toLocaleString()}` : ""}</small></div><ArrowRight /></Link>}
 
         {/* Message Thread */}
         <div className="flex-1 min-h-0 overflow-y-auto space-y-3 bg-sunken/40 px-4 py-4 sm:px-6">

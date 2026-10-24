@@ -12,7 +12,6 @@ import {
   Star,
   Store,
   Tag,
-  Truck,
 } from "lucide-react";
 import { getProductServer, listProductsServer } from "@/lib/products";
 import { BuyBox } from "@/components/BuyBox";
@@ -22,6 +21,7 @@ import { listProductQuestionsServer } from "@/lib/questions";
 import { PromotionActions } from "@/components/PromotionActions";
 import { ProductQuestions } from "@/components/ProductQuestions";
 import { ProductCard } from "@/components/ProductCard";
+import { MobileProductDetail } from "@/components/MobileProductDetail";
 
 export async function generateMetadata({
   params,
@@ -93,7 +93,9 @@ export default async function ProductDetailPage({
       : 0;
 
   return (
-    <div className="space-y-10 sm:space-y-12 max-w-7xl mx-auto">
+    <>
+      <MobileProductDetail product={product} rating={effectiveRatingAverage} ratingCount={effectiveRatingCount} />
+    <div className="hidden space-y-10 sm:space-y-12 max-w-7xl mx-auto md:block">
       {/* Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-muted flex-wrap">
         <Link href="/" className="hover:text-primary transition-colors">
@@ -287,7 +289,8 @@ export default async function ProductDetailPage({
       {/* ================================================================= */}
       {/* FULL WIDTH: Community Questions & Answers (Visible to All)        */}
       {/* ================================================================= */}
-      <section className="pt-8 border-t border-line">
+      <div className="grid items-stretch gap-6 border-t border-line pt-8 lg:grid-cols-2">
+      <section>
         <ProductQuestions
           productId={product._id}
           sellerId={product.seller}
@@ -299,7 +302,7 @@ export default async function ProductDetailPage({
       {/* ================================================================= */}
       {/* FULL WIDTH: Seller Reputation & Buyer Feedback                    */}
       {/* ================================================================= */}
-      <section className="rounded-3xl border border-line bg-surface p-6 sm:p-8 shadow-soft space-y-6">
+      <section className="product-reputation rounded-3xl border border-line bg-surface p-6 shadow-soft space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
           <div>
             <div className="flex items-center gap-2">
@@ -326,7 +329,7 @@ export default async function ProductDetailPage({
           ) : (
             <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 self-start sm:self-auto">
               <ShieldCheck className="h-4 w-4" />
-              <span>Verified PriceAm Member</span>
+                <span>Verified seller</span>
             </div>
           )}
         </div>
@@ -377,11 +380,12 @@ export default async function ProductDetailPage({
             </div>
             <h3 className="text-sm font-bold text-ink">New Seller on PriceAm</h3>
             <p className="text-xs text-muted max-w-md mx-auto leading-relaxed">
-              <span className="font-medium text-ink">{product.storeName || product.sellerFullName || "This seller"}</span> hasn&apos;t received customer ratings yet. Safe trading tip: Always meet in a public location and inspect the item before confirming the deal and completing payment.
+              <span className="font-medium text-ink">{product.storeName || product.sellerFullName || "This seller"}</span>{" "}hasn&apos;t received customer ratings yet. Meet in a public place and inspect the item before paying the seller directly.
             </p>
           </div>
         )}
       </section>
+      </div>
 
       {/* ================================================================= */}
       {/* RELATED LISTINGS IN THIS CATEGORY                                 */}
@@ -409,5 +413,6 @@ export default async function ProductDetailPage({
         </section>
       )}
     </div>
+    </>
   );
 }
