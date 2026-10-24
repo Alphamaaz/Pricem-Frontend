@@ -19,6 +19,8 @@ export const PRODUCT_IMAGE_PLACEHOLDER = "/product-placeholder.svg";
 // later removed. Keep those active listings useful while sellers replace the
 // original media, without coupling every image component to migration logic.
 const LEGACY_IMAGE_REPLACEMENTS: Record<string, string> = {
+  "/uploads/products/1792403597472-1000006599.jpg":
+    "/listing-images/toyota-gli-sedan.webp",
   "https://images.unsplash.com/photo-1580481077195-c328a37db71a?auto=format&fit=crop&w=1200&q=85":
     "/listing-images/ergonomic-mesh-chair.webp",
   "https://images.unsplash.com/photo-1608248597359-561307b22d17?auto=format&fit=crop&w=1200&q=85":
